@@ -1628,3 +1628,550 @@ Lynis system audit
 Git-based security lab setup
 KeX/GUI tools
 ```
+
+
+---
+
+# 🧪 Practical Chapters — Batch 2
+
+Ye batch web testing, forensics, reverse engineering, local proxying aur wireless diagnostics cover karta hai. Sab practical apne localhost, apne files ya authorized lab tak rakhein.
+
+## Tool 26 — Wireshark
+
+**Kaam:** network packets ko graphical interface me analyze karna.
+
+Install:
+
+```bash
+sudo apt install wireshark -y
+```
+
+Version:
+
+```bash
+wireshark --version
+```
+
+Saved PCAP open:
+
+```bash
+wireshark lab.pcap
+```
+
+Headless/Rootless Kali me GUI ke liye KeX/VNC/desktop environment chahiye ho sakta hai.
+
+---
+
+## Tool 27 — Gobuster
+
+**Kaam:** web directories/files discover karna.
+
+Install:
+
+```bash
+sudo apt install gobuster -y
+```
+
+Help:
+
+```bash
+gobuster -h
+```
+
+Local lab banao:
+
+```bash
+mkdir -p ~/gobuster-lab/admin
+echo "home" > ~/gobuster-lab/index.html
+echo "admin" > ~/gobuster-lab/admin/index.html
+cd ~/gobuster-lab
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Doosre terminal me wordlist:
+
+```bash
+printf "admin\nlogin\ntest\n" > words.txt
+```
+
+Local scan:
+
+```bash
+gobuster dir -u http://127.0.0.1:8000 -w words.txt
+```
+
+Expected idea:
+
+```text
+/admin
+```
+
+---
+
+## Tool 28 — Wfuzz
+
+Install:
+
+```bash
+sudo apt install wfuzz -y
+```
+
+Help:
+
+```bash
+wfuzz --help
+```
+
+Local-only fuzz:
+
+```bash
+printf "admin\nlogin\ntest\n" > words.txt
+wfuzz -z file,words.txt --hc 404 http://127.0.0.1:8000/FUZZ
+```
+
+Ye intentionally local training server par resource discovery dikhata hai.
+
+---
+
+## Tool 29 — Burp Suite
+
+Install:
+
+```bash
+sudo apt install burpsuite -y
+```
+
+Start:
+
+```bash
+burpsuite
+```
+
+Use case:
+
+```text
+Proxy
+HTTP history
+Repeater
+Decoder
+Web request inspection
+```
+
+Beginner practice ke liye apne localhost web app ko browser + Burp proxy ke through inspect karein.
+
+> Doosre users ka traffic intercept karna ya unke accounts/sessions inspect karna is guide ka part nahi hai.
+
+---
+
+## Tool 30 — OWASP ZAP
+
+Install:
+
+```bash
+sudo apt install zaproxy -y
+```
+
+Version/help:
+
+```bash
+zaproxy -version
+zaproxy -h
+```
+
+GUI:
+
+```bash
+zaproxy
+```
+
+Local test target:
+
+```text
+http://127.0.0.1:8000
+```
+
+Automated scanning sirf own/local intentionally vulnerable lab par karein.
+
+---
+
+## Tool 31 — YARA
+
+**Kaam:** files ko custom patterns/rules se identify/classify karna.
+
+Install:
+
+```bash
+sudo apt install yara -y
+```
+
+Sample file:
+
+```bash
+echo "Termux-Sathi training sample" > sample.txt
+```
+
+Rule banao:
+
+```bash
+cat > sample.yar <<'EOF'
+rule TermuxSathiSample {
+    strings:
+        $text = "Termux-Sathi"
+    condition:
+        $text
+}
+EOF
+```
+
+Run:
+
+```bash
+yara sample.yar sample.txt
+```
+
+Expected:
+
+```text
+TermuxSathiSample sample.txt
+```
+
+---
+
+## Tool 32 — Foremost
+
+**Kaam:** file signatures ke basis par recovery/carving.
+
+Install:
+
+```bash
+sudo apt install foremost -y
+```
+
+Help:
+
+```bash
+foremost -h
+```
+
+Own disk image/file par:
+
+```bash
+foremost -i training.img -o recovered
+```
+
+> Real evidence par kaam karte waqt original image ko read-only preserve karna forensic best practice hai.
+
+---
+
+## Tool 33 — Autopsy
+
+**Kaam:** forensic filesystem analysis ka browser-based interface.
+
+Install:
+
+```bash
+sudo apt install autopsy -y
+```
+
+Start:
+
+```bash
+autopsy
+```
+
+Default local interface usually localhost par web UI provide karta hai.
+
+Use only copied forensic images/test data par, original evidence ko modify na karein.
+
+---
+
+## Tool 34 — Radare2
+
+Install:
+
+```bash
+sudo apt install radare2 -y
+```
+
+Version:
+
+```bash
+r2 -v
+```
+
+Apna test binary:
+
+```bash
+cat > demo.c <<'EOF'
+#include <stdio.h>
+int main() {
+    puts("Termux-Sathi");
+    return 0;
+}
+EOF
+
+gcc demo.c -o demo
+```
+
+Analyze:
+
+```bash
+r2 -A ./demo
+```
+
+Inside r2:
+
+```text
+afl
+pdf @ main
+q
+```
+
+---
+
+## Tool 35 — Rizin
+
+Install:
+
+```bash
+sudo apt install rizin -y
+```
+
+Help:
+
+```bash
+rizin -h
+```
+
+Analyze own binary:
+
+```bash
+rizin -A ./demo
+```
+
+Inside:
+
+```text
+afl
+pdf @ main
+q
+```
+
+---
+
+## Tool 36 — Aircrack-ng
+
+Install:
+
+```bash
+sudo apt install aircrack-ng -y
+```
+
+Help:
+
+```bash
+aircrack-ng --help
+```
+
+Wireless interfaces:
+
+```bash
+iw dev
+ip link
+```
+
+Rootless Android me monitor mode/packet injection generally supported external adapter + compatible kernel/USB access par depend karta hai.
+
+> Wi-Fi key cracking ya third-party networks par attacks is beginner guide me cover nahi kiye gaye hain.
+
+---
+
+## Tool 37 — Kismet
+
+Install:
+
+```bash
+sudo apt install kismet -y
+```
+
+Version/help:
+
+```bash
+kismet --version
+kismet -h
+```
+
+Capture hardware detection support environment-specific hota hai.
+
+Rootless NetHunter me Android permissions aur hardware access restrictions ki wajah se source detect na ho sakta hai.
+
+---
+
+## Tool 38 — Bettercap
+
+Install:
+
+```bash
+sudo apt install bettercap -y
+```
+
+Version/help:
+
+```bash
+bettercap -version
+bettercap -help
+```
+
+Bettercap powerful network assessment framework hai. Is guide me active interception/spoofing commands intentionally include nahi kiye gaye.
+
+---
+
+## Tool 39 — mitmproxy
+
+Install:
+
+```bash
+sudo apt install mitmproxy -y
+```
+
+Version:
+
+```bash
+mitmproxy --version
+```
+
+Local-only proxy:
+
+```bash
+mitmproxy --listen-host 127.0.0.1 -p 8080
+```
+
+Ye apne browser/app ke HTTP debugging ke liye use kiya ja sakta hai.
+
+Stop:
+
+```text
+Ctrl + C
+```
+
+---
+
+## Tool 40 — Netcat
+
+Install:
+
+```bash
+sudo apt install netcat-traditional -y
+```
+
+Help:
+
+```bash
+nc.traditional -h
+```
+
+Safe loopback listener:
+
+Terminal 1:
+
+```bash
+nc.traditional -l -p 9000
+```
+
+Terminal 2:
+
+```bash
+echo "Hello Termux-Sathi" | nc.traditional 127.0.0.1 9000
+```
+
+Terminal 1 par message dikh jayega.
+
+---
+
+## Tool 41 — OpenSSL
+
+Check:
+
+```bash
+openssl version
+```
+
+Hash:
+
+```bash
+echo "Termux-Sathi" | openssl dgst -sha256
+```
+
+Random bytes:
+
+```bash
+openssl rand -hex 16
+```
+
+Local certificate details inspect:
+
+```bash
+openssl x509 -in certificate.pem -text -noout
+```
+
+---
+
+## Tool 42 — Steghide
+
+Install:
+
+```bash
+sudo apt install steghide -y
+```
+
+Help:
+
+```bash
+steghide --help
+```
+
+Image metadata/info check:
+
+```bash
+steghide info training.jpg
+```
+
+Practice sirf apni files par karein.
+
+---
+
+# ✅ Batch 2 Practice Challenge
+
+1. Wireshark me apna saved PCAP open karo.
+2. Local Python server par Gobuster run karo.
+3. Wfuzz se same local paths test karo.
+4. Burp/ZAP launch karke localhost request inspect karo.
+5. YARA rule se apna sample file match karo.
+6. Apne compiled binary ko Radare2/Rizin me inspect karo.
+7. Netcat se loopback message bhejo.
+8. OpenSSL se SHA-256 hash generate karo.
+9. Aircrack/Kismet ke help aur local hardware interfaces inspect karo.
+10. mitmproxy ko localhost-only mode me start karo.
+
+---
+
+# 🚀 Next Practical Batch
+
+Next batch:
+
+```text
+OpenVPN
+Tor basics
+ProxyChains
+ClamAV
+Ghidra
+Sleuth Kit
+ExifTool advanced
+dd / ddrescue
+SQLite tools
+tmux
+SSH
+Git
+Docker/container basics where supported
+Kali troubleshooting toolkit
+```
