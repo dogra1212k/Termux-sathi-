@@ -39,6 +39,34 @@ sudo apt install kali-linux-everything -y
 
 ---
 
+## 📱 Android APK
+
+Termux-Sathi ka native Android companion app `android-app/` folder me hai.
+
+Features:
+
+```text
+Setup commands copy
+GitHub repo shortcut
+Kali Master Index
+Kali Tools Guide
+Safe Labs
+NetHunter Rootless Guide
+Open Termux button
+```
+
+GitHub Actions debug APK automatically build karta hai aur successful build ke baad **Termux-Sathi Debug APK** release me publish karta hai.
+
+APK file name:
+
+```text
+Termux-Sathi-debug.apk
+```
+
+App Android sandbox ke andar Kali/root commands silently execute nahi karta. Commands Termux me run kiye jaate hain.
+
+---
+
 ## 🚀 Run Termux-Sathi Toolkit
 
 Repo clone:
