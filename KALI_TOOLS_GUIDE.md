@@ -943,3 +943,688 @@ Linux → Networking → Nmap → HTTP/Web → Packet Analysis
 ```
 
 > Offensive categories ke commands ko apne isolated lab/CTF tak rakho. Tool ka naam install kar lena permission ka substitute nahi hota.
+
+
+---
+
+# 🧪 Practical Chapters — Batch 1
+
+Is section me commands ko khud run karke tool ka output samjhenge.
+
+## Practical Lab Setup
+
+Terminal 1:
+
+```bash
+mkdir -p ~/kali-tools-lab
+cd ~/kali-tools-lab
+echo '<h1>Termux-Sathi Lab</h1>' > index.html
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Terminal 2:
+
+```bash
+curl http://127.0.0.1:8000
+```
+
+Expected text:
+
+```text
+<h1>Termux-Sathi Lab</h1>
+```
+
+---
+
+## Tool 1 — Nmap
+
+Install:
+
+```bash
+sudo apt install nmap -y
+```
+
+Purpose: apne host/lab ke ports aur services identify karna.
+
+Basic localhost:
+
+```bash
+nmap 127.0.0.1
+```
+
+Specific lab port:
+
+```bash
+nmap -p 8000 127.0.0.1
+```
+
+Service detection on local lab:
+
+```bash
+nmap -sV -p 8000 127.0.0.1
+```
+
+Expected idea:
+
+```text
+8000/tcp open  http
+```
+
+Useful options:
+
+```text
+-p     port choose
+-sV    service/version detection
+-oN    normal output file
+```
+
+Save result:
+
+```bash
+nmap -sV -p 8000 127.0.0.1 -oN nmap-result.txt
+cat nmap-result.txt
+```
+
+---
+
+## Tool 2 — curl
+
+Install:
+
+```bash
+sudo apt install curl -y
+```
+
+Fetch local page:
+
+```bash
+curl http://127.0.0.1:8000
+```
+
+Headers:
+
+```bash
+curl -I http://127.0.0.1:8000
+```
+
+Verbose:
+
+```bash
+curl -v http://127.0.0.1:8000
+```
+
+Save:
+
+```bash
+curl -o page.html http://127.0.0.1:8000
+cat page.html
+```
+
+---
+
+## Tool 3 — wget
+
+Install:
+
+```bash
+sudo apt install wget -y
+```
+
+Download local page:
+
+```bash
+wget -O downloaded.html http://127.0.0.1:8000
+cat downloaded.html
+```
+
+Purpose: HTTP/HTTPS/FTP resources download karna.
+
+---
+
+## Tool 4 — WhatWeb
+
+Install:
+
+```bash
+sudo apt install whatweb -y
+```
+
+Own local server identify:
+
+```bash
+whatweb http://127.0.0.1:8000
+```
+
+Purpose: web technology/fingerprint information collect karna.
+
+---
+
+## Tool 5 — Nikto
+
+Install:
+
+```bash
+sudo apt install nikto -y
+```
+
+Help:
+
+```bash
+nikto -Help
+```
+
+Safe target rule: Nikto automated web checks karta hai, isliye practice intentionally vulnerable/local web lab par hi karein.
+
+---
+
+## Tool 6 — DNS: dig
+
+Install:
+
+```bash
+sudo apt install dnsutils -y
+```
+
+Lookup:
+
+```bash
+dig example.com
+```
+
+Short answer:
+
+```bash
+dig +short example.com
+```
+
+Record type:
+
+```bash
+dig example.com A
+```
+
+Purpose: DNS resolution aur records troubleshoot karna.
+
+---
+
+## Tool 7 — nslookup
+
+```bash
+nslookup example.com
+```
+
+Purpose: simple domain/IP DNS lookup.
+
+---
+
+## Tool 8 — ss
+
+Listening sockets:
+
+```bash
+ss -tuln
+```
+
+Port 8000:
+
+```bash
+ss -tuln | grep 8000
+```
+
+Purpose: local sockets aur listening services inspect karna.
+
+---
+
+## Tool 9 — tcpdump
+
+Install:
+
+```bash
+sudo apt install tcpdump -y
+```
+
+Version:
+
+```bash
+tcpdump --version
+```
+
+Interfaces:
+
+```bash
+tcpdump -D
+```
+
+Offline PCAP read:
+
+```bash
+tcpdump -r capture.pcap
+```
+
+> Capture sirf apne/authorized traffic ka karein. Rootless Android me live capture permissions limited ho sakti hain.
+
+---
+
+## Tool 10 — tshark
+
+Install:
+
+```bash
+sudo apt install tshark -y
+```
+
+Version:
+
+```bash
+tshark --version
+```
+
+Offline PCAP:
+
+```bash
+tshark -r capture.pcap
+```
+
+Packet count:
+
+```bash
+tshark -r capture.pcap | wc -l
+```
+
+Purpose: Wireshark ka command-line packet analyzer.
+
+---
+
+## Tool 11 — Wireshark
+
+Install:
+
+```bash
+sudo apt install wireshark -y
+```
+
+Version:
+
+```bash
+wireshark --version
+```
+
+GUI start:
+
+```bash
+wireshark
+```
+
+NetHunter Rootless me GUI ke liye KeX/VNC desktop ki zarurat ho sakti hai.
+
+---
+
+## Tool 12 — Netcat
+
+Install:
+
+```bash
+sudo apt install netcat-openbsd -y
+```
+
+Terminal 1, localhost listener:
+
+```bash
+nc -l 127.0.0.1 9000
+```
+
+Terminal 2:
+
+```bash
+nc 127.0.0.1 9000
+```
+
+Ab dono terminals me simple text type karke local TCP connection samjho.
+
+> Is chapter me Netcat ko local networking lab ke liye use kiya gaya hai, remote shells ke liye nahi.
+
+---
+
+## Tool 13 — OpenSSL
+
+Version:
+
+```bash
+openssl version
+```
+
+SHA-256:
+
+```bash
+echo "Termux-Sathi" > sample.txt
+openssl dgst -sha256 sample.txt
+```
+
+Random bytes:
+
+```bash
+openssl rand -hex 16
+```
+
+Purpose: cryptography/TLS utilities aur hashing.
+
+---
+
+## Tool 14 — sha256sum
+
+```bash
+echo "Termux-Sathi" > evidence.txt
+sha256sum evidence.txt
+```
+
+Change file:
+
+```bash
+echo "changed" >> evidence.txt
+sha256sum evidence.txt
+```
+
+Hash change hoga. Forensics me integrity verify karne ka basic concept yahi hai.
+
+---
+
+## Tool 15 — file
+
+```bash
+file evidence.txt
+file /bin/bash
+```
+
+Purpose: file type identify karna.
+
+---
+
+## Tool 16 — strings
+
+```bash
+strings /bin/ls | head
+```
+
+Purpose: binary/file ke printable strings inspect karna.
+
+---
+
+## Tool 17 — Binwalk
+
+Install:
+
+```bash
+sudo apt install binwalk -y
+```
+
+Help:
+
+```bash
+binwalk --help
+```
+
+Own/training firmware sample inspect:
+
+```bash
+binwalk firmware.bin
+```
+
+Purpose: firmware/binary me embedded signatures/data identify karna.
+
+---
+
+## Tool 18 — ExifTool
+
+Install:
+
+```bash
+sudo apt install libimage-exiftool-perl -y
+```
+
+Metadata:
+
+```bash
+exiftool image.jpg
+```
+
+Purpose: image/document metadata inspect karna.
+
+---
+
+## Tool 19 — GDB
+
+Install:
+
+```bash
+sudo apt install gdb -y
+```
+
+Version:
+
+```bash
+gdb --version
+```
+
+Simple own program:
+
+```bash
+cat > hello.c <<'EOF'
+#include <stdio.h>
+int main() {
+    printf("Termux-Sathi\\n");
+    return 0;
+}
+EOF
+
+sudo apt install gcc -y
+gcc -g hello.c -o hello
+gdb ./hello
+```
+
+Inside GDB:
+
+```text
+break main
+run
+list
+quit
+```
+
+Purpose: apne/training programs ko debug aur analyze karna.
+
+---
+
+## Tool 20 — Radare2
+
+Install:
+
+```bash
+sudo apt install radare2 -y
+```
+
+Open own binary:
+
+```bash
+r2 ./hello
+```
+
+Inside:
+
+```text
+aaa
+afl
+q
+```
+
+Purpose: reverse-engineering framework. Practice own binaries/CTF samples par karein.
+
+---
+
+# 🔐 Controlled-Lab Security Tools
+
+Neeche ke tools powerful hain. Inka beginner chapter installation, help aur authorized lab workflow tak limited hai.
+
+## Tool 21 — SQLMap
+
+```bash
+sudo apt install sqlmap -y
+sqlmap --version
+sqlmap --help
+```
+
+Purpose: SQL injection testing automation.
+
+Practice: intentionally vulnerable local apps/CTFs only. Real websites par automated testing permission ke bina mat karein.
+
+---
+
+## Tool 22 — John the Ripper
+
+```bash
+sudo apt install john -y
+john --help
+```
+
+Purpose: password/hash auditing.
+
+Practice only with hashes/passwords created specifically for your own lab.
+
+---
+
+## Tool 23 — Hashcat
+
+```bash
+sudo apt install hashcat -y
+hashcat --version
+hashcat --help
+```
+
+Purpose: password/hash auditing. Rootless Android me GPU acceleration unavailable ho sakti hai.
+
+---
+
+## Tool 24 — Hydra
+
+```bash
+sudo apt install hydra -y
+hydra -h
+```
+
+Purpose: authentication auditing.
+
+Practice only against an intentionally configured local training service with test credentials. Third-party account guessing is not a lab.
+
+---
+
+## Tool 25 — Metasploit Framework
+
+```bash
+sudo apt install metasploit-framework -y
+msfconsole
+```
+
+Inside:
+
+```text
+version
+help
+exit
+```
+
+Purpose: authorized penetration-testing framework.
+
+Exploit/payload exercises ko isolated intentionally vulnerable VM/CTF tak rakhein.
+
+---
+
+## Tool 26 — Searchsploit
+
+```bash
+sudo apt install exploitdb -y
+searchsploit --help
+searchsploit apache
+```
+
+Purpose: local Exploit-DB index search karna. Search result milna ye prove nahi karta ki koi system vulnerable hai.
+
+---
+
+## Tool 27 — Burp Suite
+
+```bash
+sudo apt install burpsuite -y
+burpsuite
+```
+
+Purpose: web request/response inspection aur authorized web testing.
+
+Safe first lab: apne local web application ka HTTP traffic inspect karein. GUI ke liye KeX/VNC required ho sakta hai.
+
+---
+
+# 🛠 Common Errors
+
+### command not found
+
+```bash
+which TOOL
+apt search TOOL
+```
+
+### package not found
+
+```bash
+sudo apt update
+apt search TOOL
+```
+
+### permission denied
+
+```bash
+ls -l FILE
+id
+```
+
+Blindly `chmod 777` mat lagao. Pehle permission problem samjho.
+
+### GUI not opening
+
+Rootless Kali me graphical tools ko KeX/VNC desktop/display configuration chahiye ho sakti hai.
+
+### hardware feature missing
+
+Wi-Fi monitor mode, Bluetooth, SDR, RFID, USB aur GPU tools ko compatible hardware/kernel access chahiye.
+
+---
+
+# 🎯 Batch 1 Challenge
+
+1. Local Python server start karo.
+2. Nmap se port 8000 verify karo.
+3. curl se page fetch karo.
+4. WhatWeb se local page inspect karo.
+5. ss se listening socket dekho.
+6. sample file ka SHA-256 nikalo.
+7. file aur strings commands use karo.
+8. own C program compile karke GDB me open karo.
+9. Kali tool ke `--help` output ko read karna practice karo.
+10. Har command ka output apne notes me explain karo.
+
+## Next Practical Batch
+
+Agla batch:
+
+```text
+Aircrack-ng fundamentals (hardware-safe)
+Kismet basics
+APKTool
+JADX
+YARA
+Foremost
+Autopsy
+Wfuzz safe local lab
+Gobuster safe local lab
+Lynis system audit
+Git-based security lab setup
+KeX/GUI tools
+```
