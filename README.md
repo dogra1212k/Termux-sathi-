@@ -13,6 +13,8 @@ Android पर Termux और Kali NetHunter Rootless सीखने के ल�
 5. Processes, System Info & Networking
 6. File Search, Text Processing & Archives
 7. Bash Scripting Basics
+8. Python Basics
+9. Git & GitHub Basics
 
 ---
 
@@ -764,21 +766,355 @@ try / except
 sys.argv
 ```
 
+# Part 9 — Git & GitHub Basics in Termux/Kali
+
+Git local files aur unki history manage karta hai. GitHub remote repository hosting aur collaboration ke liye use hota hai.
+
+## 1. Git Install
+
+Kali me:
+
+```bash
+sudo apt update
+sudo apt install git -y
+```
+
+Termux me:
+
+```bash
+pkg update
+pkg install git
+```
+
+Check:
+
+```bash
+git --version
+```
+
+## 2. Git Identity Configure
+
+```bash
+git config --global user.name "Arun"
+git config --global user.email "YOUR_GITHUB_EMAIL"
+```
+
+Check:
+
+```bash
+git config --global --list
+```
+
+Optional default branch:
+
+```bash
+git config --global init.defaultBranch main
+```
+
+> Public repository me commit email visible ho sakta hai. GitHub ka privacy/no-reply email bhi use kiya ja sakta hai.
+
+## 3. Termux-Sathi Repo Clone
+
+```bash
+cd ~
+git clone https://github.com/dogra1212k/Termux-sathi-.git
+cd Termux-sathi-
+```
+
+Check remote:
+
+```bash
+git remote -v
+```
+
+## 4. Repository Status
+
+```bash
+git status
+```
+
+Ye batata hai kaunsi files modified, staged ya untracked hain.
+
+## 5. File Change Practical
+
+```bash
+echo "Git practical started" > git-practice.txt
+git status
+```
+
+## 6. Stage Changes
+
+Ek file:
+
+```bash
+git add git-practice.txt
+```
+
+Sab current changes:
+
+```bash
+git add .
+```
+
+Check:
+
+```bash
+git status
+```
+
+## 7. Commit
+
+```bash
+git commit -m "Add Git practice file"
+```
+
+Commit local Git history me snapshot save karta hai.
+
+Recent commits:
+
+```bash
+git log --oneline
+```
+
+## 8. Branch Basics
+
+Branches dekho:
+
+```bash
+git branch
+```
+
+Nayi branch banao aur switch karo:
+
+```bash
+git switch -c practice-branch
+```
+
+Purane Git versions me:
+
+```bash
+git checkout -b practice-branch
+```
+
+Main branch par wapas:
+
+```bash
+git switch main
+```
+
+## 9. Remote Updates Check
+
+```bash
+git fetch
+```
+
+`fetch` remote changes download karta hai, lekin unhe current branch me automatically merge nahi karta.
+
+## 10. Pull
+
+```bash
+git pull
+```
+
+`pull` remote changes fetch karke current branch me integrate karta hai.
+
+Apna kaam start karne se pehle aam taur par:
+
+```bash
+git status
+git pull
+```
+
+karna useful hai.
+
+## 11. GitHub Authentication
+
+GitHub password-based Git authentication use nahi karta. HTTPS ke liye browser-based GitHub CLI login ya personal access token use kiya ja sakta hai. SSH bhi supported hai.
+
+### GitHub CLI Install
+
+Kali:
+
+```bash
+sudo apt install gh -y
+```
+
+Termux:
+
+```bash
+pkg install gh
+```
+
+Check:
+
+```bash
+gh --version
+```
+
+Login:
+
+```bash
+gh auth login
+```
+
+GitHub.com choose karo, phir HTTPS aur browser login method follow kar sakte ho.
+
+Status check:
+
+```bash
+gh auth status
+```
+
+> Password, personal access token ya SSH private key ko README, screenshot, chat ya public file me kabhi save/share mat karo.
+
+## 12. Push
+
+Current branch push:
+
+```bash
+git push
+```
+
+Nayi branch pehli baar:
+
+```bash
+git push -u origin practice-branch
+```
+
+`-u` upstream set karta hai, jisse agle push/pull commands chhote ho jate hain.
+
+## 13. Safe Branch Workflow
+
+Project ke liye recommended practice:
+
+```bash
+git switch main
+git pull
+git switch -c update-readme
+```
+
+File edit karo:
+
+```bash
+nano README.md
+```
+
+Phir:
+
+```bash
+git status
+git add README.md
+git commit -m "Update README"
+git push -u origin update-readme
+```
+
+Uske baad GitHub par Pull Request create ki ja sakti hai.
+
+## 14. Undo Staging
+
+Galti se staged file:
+
+```bash
+git restore --staged git-practice.txt
+```
+
+File ke unstaged local changes discard karne ke liye:
+
+```bash
+git restore git-practice.txt
+```
+
+> `git restore` local changes hata sakta hai. Run karne se pehle `git diff` dekhna achhi habit hai.
+
+## 15. Changes Compare
+
+Unstaged difference:
+
+```bash
+git diff
+```
+
+Staged difference:
+
+```bash
+git diff --staged
+```
+
+## 16. Useful Git Commands
+
+```text
+git clone       = repository ki local copy
+git status      = current state
+git add         = changes stage
+git commit      = snapshot save
+git log         = history
+git branch      = branches
+git switch      = branch change
+git fetch       = remote updates download
+git pull        = remote changes integrate
+git push        = commits GitHub par upload
+git diff        = changes compare
+git remote -v   = remote URLs
+```
+
+## 🧪 Full Git Practical
+
+```bash
+cd ~
+git clone https://github.com/dogra1212k/Termux-sathi-.git
+cd Termux-sathi-
+
+git switch -c my-practice
+
+echo "My Git practice" > practice.txt
+
+git status
+git add practice.txt
+git commit -m "Add practice file"
+git log --oneline
+
+git push -u origin my-practice
+```
+
+## 🎯 Practice Challenge
+
+1. Repo clone karo.
+2. Nayi branch banao.
+3. Ek text file create karo.
+4. `git status` check karo.
+5. File stage karo.
+6. Commit karo.
+7. `git log --oneline` check karo.
+8. GitHub authentication verify karo.
+9. Branch push karo.
+10. GitHub par branch verify karo.
+
+---
+
+## ✅ Part 9 Complete
+
+Ab aap Git/GitHub ke basic workflow ko samajhte ho:
+
+```text
+clone → branch → edit → status → add → commit → pull/fetch → push
+```
+
 ## 🚀 Next
 
-**Part 9 — Git & GitHub Basics in Termux/Kali**
+**Part 10 — Linux Networking Practical & Troubleshooting**
 
 Topics:
-- git install
-- git config
-- clone
-- status
-- add
-- commit
-- branch
-- pull
-- push
-- GitHub authentication basics
+- localhost aur IP basics
+- DNS basics
+- ip addr / ip route
+- ping
+- curl
+- wget
+- ss
+- DNS lookup
+- ports ka concept
+- safe local HTTP server
+- common network errors
 
 ---
 
