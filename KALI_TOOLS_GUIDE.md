@@ -766,3 +766,180 @@ whatweb http://127.0.0.1:8000
 - Log analysis
 - Defensive monitoring
 - CTF practice workflow
+
+
+---
+
+# 📦 Complete Kali Toolsets / Metapackages
+
+Kali ke hundreds of tools ko category-wise install karne ka official tareeka metapackages hain.
+
+## Almost every Kali tool
+
+```bash
+sudo apt update
+sudo apt install kali-linux-everything -y
+```
+
+> Ye bahut bada installation hai. Android/NetHunter Rootless me storage, RAM, GUI aur hardware restrictions ko dhyan me rakho.
+
+## Main system collections
+
+```bash
+sudo apt install kali-linux-core -y
+sudo apt install kali-linux-headless -y
+sudo apt install kali-linux-default -y
+sudo apt install kali-linux-large -y
+sudo apt install kali-linux-arm -y
+sudo apt install kali-linux-nethunter -y
+sudo apt install kali-tools-top10 -y
+```
+
+## Complete category collections
+
+### Information Gathering
+```bash
+sudo apt install kali-tools-information-gathering -y
+```
+
+### Vulnerability Analysis
+```bash
+sudo apt install kali-tools-vulnerability -y
+```
+
+### Web Applications
+```bash
+sudo apt install kali-tools-web -y
+```
+
+### Database
+```bash
+sudo apt install kali-tools-database -y
+```
+
+### Password Auditing
+```bash
+sudo apt install kali-tools-passwords -y
+```
+
+### Wireless
+```bash
+sudo apt install kali-tools-wireless -y
+```
+
+### Wi-Fi / 802.11
+```bash
+sudo apt install kali-tools-802-11 -y
+```
+
+### Bluetooth
+```bash
+sudo apt install kali-tools-bluetooth -y
+```
+
+### RFID
+```bash
+sudo apt install kali-tools-rfid -y
+```
+
+### Software Defined Radio
+```bash
+sudo apt install kali-tools-sdr -y
+```
+
+### Reverse Engineering
+```bash
+sudo apt install kali-tools-reverse-engineering -y
+```
+
+### Exploitation Frameworks
+```bash
+sudo apt install kali-tools-exploitation -y
+```
+
+### Social Engineering
+```bash
+sudo apt install kali-tools-social-engineering -y
+```
+
+### Sniffing / Spoofing
+```bash
+sudo apt install kali-tools-sniffing-spoofing -y
+```
+
+### Post Exploitation
+```bash
+sudo apt install kali-tools-post-exploitation -y
+```
+
+### Digital Forensics
+```bash
+sudo apt install kali-tools-forensics -y
+```
+
+### Reporting
+```bash
+sudo apt install kali-tools-reporting -y
+```
+
+### Fuzzing
+```bash
+sudo apt install kali-tools-fuzzing -y
+```
+
+### Cryptography / Steganography
+```bash
+sudo apt install kali-tools-crypto-stego -y
+```
+
+### Hardware
+```bash
+sudo apt install kali-tools-hardware -y
+```
+
+### GPU
+```bash
+sudo apt install kali-tools-gpu -y
+```
+
+### VoIP
+```bash
+sudo apt install kali-tools-voip -y
+```
+
+### Windows Resources
+```bash
+sudo apt install kali-tools-windows-resources -y
+```
+
+### Kali Practice Labs
+```bash
+sudo apt install kali-linux-labs -y
+```
+
+## Apne current Kali me available categories dekho
+
+```bash
+apt search '^kali-tools-'
+apt search '^kali-linux-'
+```
+
+Installed metapackages:
+
+```bash
+dpkg -l | grep -E 'kali-tools|kali-linux'
+```
+
+## Important Android / NetHunter Rootless Note
+
+Package install ho jana aur feature ka hardware-level par kaam karna alag baat hai. Monitor mode, packet injection, raw Bluetooth, RFID, SDR, USB aur GPU tools ko compatible hardware/kernel/permissions chahiye ho sakte hain.
+
+Safe learning order:
+
+```text
+Linux → Networking → Nmap → HTTP/Web → Packet Analysis
+→ Forensics → Reverse Engineering → Vulnerability Assessment
+→ Authorized Lab Testing → Reporting
+```
+
+> Offensive categories ke commands ko apne isolated lab/CTF tak rakho. Tool ka naam install kar lena permission ka substitute nahi hota.
