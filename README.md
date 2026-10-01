@@ -16,6 +16,7 @@ Android पर Termux और Kali NetHunter Rootless सीखने के ल�
 8. Python Basics
 9. Git & GitHub Basics
 10. Linux Networking Practical & Troubleshooting
+11. Linux Users, Environment Variables & Shell Customization
 
 ---
 
@@ -1606,20 +1607,386 @@ Ab aap networking ka basic troubleshooting flow samajhte ho:
 interface → route → IP connectivity → DNS → HTTP/service → port
 ```
 
+# Part 11 — Linux Users, Environment Variables & Shell Customization
+
+Is part me hum shell environment ko samjhenge aur safely customize karenge.
+
+## 1. Current User Check
+
+```bash
+whoami
+id
+echo "$HOME"
+echo "$SHELL"
+```
+
+## 2. Environment Variables Dekhna
+
+```bash
+env
+printenv
+```
+
+Specific variable:
+
+```bash
+printenv HOME
+echo "$HOME"
+```
+
+Common variables:
+
+```text
+HOME   = home directory
+PATH   = executable search locations
+USER   = current user
+SHELL  = current shell
+PWD    = current directory
+OLDPWD = previous directory
+```
+
+## 3. PATH Samjho
+
+```bash
+echo "$PATH"
+which python3
+```
+
+PATH colon-separated directories ki list hoti hai jahan shell commands search karta hai.
+
+## 4. Temporary Variable
+
+```bash
+name="Termux-Sathi"
+echo "$name"
+```
+
+## 5. export Command
+
+```bash
+export PROJECT="Termux-Sathi"
+echo "$PROJECT"
+printenv PROJECT
+```
+
+`export` variable ko child processes ke environment me bhi available banata hai.
+
+## 6. Custom bin Folder
+
+```bash
+mkdir -p ~/bin
+export PATH="$HOME/bin:$PATH"
+```
+
+Check:
+
+```bash
+echo "$PATH"
+```
+
+## 7. Apna Command Banana
+
+```bash
+nano ~/bin/hello-sathi
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+echo "Hello from Termux-Sathi"
+```
+
+Executable banao:
+
+```bash
+chmod +x ~/bin/hello-sathi
+```
+
+Run:
+
+```bash
+hello-sathi
+```
+
+## 8. Alias
+
+```bash
+alias ll='ls -lah'
+alias c='clear'
+alias gs='git status'
+alias ..='cd ..'
+```
+
+Check:
+
+```bash
+alias
+```
+
+Remove:
+
+```bash
+unalias ll
+```
+
+## 9. .bashrc
+
+Check:
+
+```bash
+ls -la ~/.bashrc
+```
+
+Agar file nahi ho:
+
+```bash
+touch ~/.bashrc
+```
+
+## 10. Backup Before Editing
+
+```bash
+cp ~/.bashrc ~/.bashrc.backup
+```
+
+Ye chhota backup future ki unnecessary suffering se bachata hai. Linux ko drama pasand hai, par humein zaroori nahi. 😄
+
+## 11. Persistent Aliases
+
+```bash
+nano ~/.bashrc
+```
+
+Add:
+
+```bash
+alias ll='ls -lah'
+alias gs='git status'
+alias c='clear'
+```
+
+Reload:
+
+```bash
+source ~/.bashrc
+```
+
+## 12. Persistent Variable
+
+`~/.bashrc` me:
+
+```bash
+export PROJECT="Termux-Sathi"
+```
+
+Reload:
+
+```bash
+source ~/.bashrc
+echo "$PROJECT"
+```
+
+## 13. Persistent PATH
+
+`~/.bashrc` me:
+
+```bash
+export PATH="$HOME/bin:$PATH"
+```
+
+Reload:
+
+```bash
+source ~/.bashrc
+```
+
+Verify:
+
+```bash
+which hello-sathi
+```
+
+> Existing `$PATH` ko preserve karo. Sirf `PATH="$HOME/bin"` likhne se important system paths hat sakte hain.
+
+## 14. .bashrc Syntax Check
+
+```bash
+bash -n ~/.bashrc
+```
+
+Agar output nahi aata, basic syntax generally valid hai.
+
+## 15. Restore .bashrc
+
+Agar problem aaye:
+
+```bash
+cp ~/.bashrc.backup ~/.bashrc
+source ~/.bashrc
+```
+
+## 16. Command History
+
+```bash
+history
+history | tail
+history | grep git
+```
+
+History variables:
+
+```bash
+echo "$HISTSIZE"
+echo "$HISTFILE"
+echo "$HISTFILESIZE"
+```
+
+Optional values:
+
+```bash
+export HISTSIZE=2000
+export HISTFILESIZE=5000
+```
+
+> Passwords, tokens aur private keys ko command line me type karne se bachna chahiye. Sensitive data history me save ho sakta hai.
+
+## 17. History Clear
+
+```bash
+history -c
+```
+
+Use carefully, kyunki troubleshooting ke waqt history useful hoti hai.
+
+## 18. Shell Prompt Basics
+
+Check:
+
+```bash
+echo "$PS1"
+```
+
+Temporary custom prompt:
+
+```bash
+PS1='Termux-Sathi $ '
+```
+
+Useful prompt:
+
+```bash
+PS1='\u@\h:\w\$ '
+```
+
+Meaning:
+
+```text
+\u = username
+\h = hostname
+\w = current directory
+\$ = prompt symbol
+```
+
+Persistent prompt ke liye PS1 line `~/.bashrc` me add ki ja sakti hai.
+
+## 19. Useful .bashrc Example
+
+```bash
+export PATH="$HOME/bin:$PATH"
+export PROJECT="Termux-Sathi"
+
+alias ll='ls -lah'
+alias gs='git status'
+alias c='clear'
+
+export HISTSIZE=2000
+export HISTFILESIZE=5000
+
+PS1='\u@\h:\w\$ '
+```
+
+Syntax check:
+
+```bash
+bash -n ~/.bashrc
+```
+
+Reload:
+
+```bash
+source ~/.bashrc
+```
+
+## 🧪 Full Practical
+
+```bash
+cp ~/.bashrc ~/.bashrc.backup
+mkdir -p ~/bin
+
+cat > ~/bin/hello-sathi <<'EOF'
+#!/bin/bash
+echo "Hello from Termux-Sathi"
+EOF
+
+chmod +x ~/bin/hello-sathi
+
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+echo "alias ll='ls -lah'" >> ~/.bashrc
+
+bash -n ~/.bashrc
+source ~/.bashrc
+
+hello-sathi
+ll
+```
+
+## 🎯 Practice Challenge
+
+1. Current user check karo.
+2. HOME aur SHELL variables dekho.
+3. PATH print karo.
+4. Temporary variable banao.
+5. Alias banao.
+6. `~/bin` folder PATH me add karo.
+7. Custom command banao.
+8. `.bashrc` backup lo.
+9. Alias persistent banao.
+10. `bash -n ~/.bashrc` se syntax verify karo.
+
+---
+
+## ✅ Part 11 Complete
+
+Ab aap samajhte ho:
+
+```text
+env
+printenv
+PATH
+export
+alias
+unalias
+.bashrc
+source
+history
+PS1
+```
+
 ## 🚀 Next
 
-**Part 11 — Linux Users, Environment Variables & Shell Customization**
+**Part 12 — Python Automation for Termux**
 
 Topics:
-- env
-- printenv
-- PATH
-- export
-- aliases
-- .bashrc
-- command history settings
-- shell prompt basics
-- safe persistent customization
+- os
+- pathlib
+- subprocess
+- shutil
+- file automation
+- system info
+- logs
+- safe command runner
+- mini Termux-Sathi automation tool
 
 ---
 
