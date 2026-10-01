@@ -12,6 +12,11 @@ Android पर Termux और Kali NetHunter Rootless सीखने के ल�
 
 ---
 
+## 🐉 Kali Tools Guides
+
+- [Kali Linux Tools — Complete Category Guide](KALI_TOOLS_GUIDE.md)
+- [Kali Linux Tools — Step-by-Step Practical Guide](KALI_TOOLS_PRACTICAL.md)
+
 ## 📚 Learning Path
 
 1. Termux Setup
