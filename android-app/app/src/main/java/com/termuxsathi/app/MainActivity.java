@@ -50,15 +50,26 @@ public class MainActivity extends Activity {
     private int quizQuestion = 0;
     private int quizCurrentScore = 0;
     private String lastCommand = "help";
+    private String currentTopic = "Linux Terminal Basics";
+    private String currentTool = "";
 
     private final String[] lessonTitles = {
             "Linux Terminal Basics","pwd, ls aur cd","mkdir, touch aur files",
             "cat aur echo","Permissions ka concept","Processes ka concept",
             "Packages: apt / pkg","Networking basics","IP address aur routes",
-            "Ping aur connectivity","Nmap ka safe intro","HTTP: curl / wget",
+            "Ping aur connectivity","Nmap fundamentals","HTTP: curl / wget",
             "DNS: dig / host","Bash scripting","Python basics","Git basics",
             "File hashes aur integrity","Digital forensics basics",
-            "Kali tools categories","NetHunter Rootless limitations"
+            "Kali tools categories","NetHunter Rootless limitations",
+            "Ports, services aur protocols","TCP vs UDP","SSH fundamentals","Web requests aur headers",
+            "Burp Suite basics","Content discovery basics","SQL injection concepts","XSS concepts",
+            "Authentication security","Password auditing","Hydra concepts in lab","Hashcat/John workflow",
+            "Wi-Fi security concepts","Aircrack-ng lab concepts","Packet capture analysis","Wireshark/Tshark",
+            "Metasploit framework concepts","Vulnerability validation in lab","Reverse engineering basics","GDB/JADX basics",
+            "YARA aur malware triage","Forensics evidence workflow","Privilege escalation concepts","Linux misconfiguration audit",
+            "Phishing awareness aur detection","Social engineering defense","Payloads aur shells concepts","Reverse shell detection",
+            "Persistence concepts aur detection","Log analysis / incident response",
+            "CTF methodology","Safe hacking lab setup","Reporting findings","Responsible disclosure"
     };
 
     @Override
@@ -121,7 +132,7 @@ public class MainActivity extends Activity {
         names.addView(label("Termux-Sathi Learning Terminal",18,TEXT,Typeface.BOLD));
         names.addView(label("Offline • Self-contained • Safe Practice",11,GREEN,Typeface.BOLD));
         top.addView(names,new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f));
-        top.addView(label("v2.1",11,CYAN,Typeface.BOLD));
+        top.addView(label("v3.0",11,CYAN,Typeface.BOLD));
         box.addView(top);
 
         TextView hint = label("Commands, lessons aur labs isi app ke andar chalenge.",12,MUTED,Typeface.NORMAL);
@@ -147,9 +158,9 @@ public class MainActivity extends Activity {
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.addView(chip("📖 EXPLAIN",v->runCommand("explain")),weight(1));
-        row2.addView(chip("🐉 KALI GUIDE",v->runCommand("guide")),weight(1));
+        row2.addView(chip("🎓 LESSON",v->runCommand("subject")),weight(1));
+        row2.addView(chip(">_ TERMINAL",v->runCommand("terminal")),weight(1));
         box.addView(row2);
-
         return box;
     }
 
@@ -199,13 +210,14 @@ public class MainActivity extends Activity {
 
     private void bootScreen(){
         terminal.setText("");
-        appendGreen("TERMUX-SATHI LEARNING TERMINAL v2.1\n");
+        appendGreen("TERMUX-SATHI LEARNING TERMINAL v3.0\n");
         append("Safe training shell ready. External app ki zarurat nahi.\n\n");
         appendYellow("Start: "); append("help\n");
         appendYellow("Course: "); append("lessons   |   lesson 1   |   next   |   progress\n");
         appendYellow("Practice: "); append("practice linux   |   practice network\n");
-        appendYellow("Tools: "); append("kali-tools   |   guide   |   tool nmap\n");
-        appendYellow("Explain: "); append("explain   (last command ko subject-wise samjho)\n");
+        appendYellow("Tools: "); append("kali-tools   |   tool nmap   |   tool burpsuite\n");
+        appendYellow("Explain: "); append("explain = terminal me kya likhna hai + usse kya hoga\n");
+        appendYellow("Lesson: "); append("subject = current lesson/tool ki full theory + commands\n");
         appendYellow("Test: "); append("quiz   |   challenge   |   cheatsheet   |   badges\n\n");
         append("Filesystem commands app ke private sandbox me real files par kaam karte hain.\n");
         appendPrompt();
@@ -236,7 +248,8 @@ public class MainActivity extends Activity {
                 case "lesson": showLesson(parts); break;
                 case "practice": showPractice(parts); break;
                 case "kali-tools": showKaliTools(); break;
-                case "guide": showKaliGuideScreen(); break;
+                case "terminal": bootScreen(); break;
+                case "subject": showCurrentSubject(); break;
                 case "explain":
                 case "why": showExplainScreen(lastCommand); break;
                 case "tool": showTool(parts); break;
@@ -277,7 +290,7 @@ public class MainActivity extends Activity {
 
     private void showHelp(){
         appendYellow("SUPPORTED COMMANDS\n");
-        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  answer A|B|C\n  challenge\n  cheatsheet\n  badges\n  practice linux\n  practice network\n  kali-tools\n  guide\n  explain\n  tool NAME\n\n");
+        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  answer A|B|C\n  challenge\n  cheatsheet\n  badges\n  practice linux\n  practice network\n  kali-tools\n  explain\n  subject\n  terminal\n  tool NAME\n\n");
         append("Filesystem:\n  pwd  ls  cd  mkdir  touch  cat  echo  rm\n\n");
         append("System/training:\n  whoami  uname  date  history  clear  reset\n");
         append("  ip addr  ip route  ping HOST  nmap TARGET\n");
@@ -302,6 +315,8 @@ public class MainActivity extends Activity {
             appendYellow("LESSON "+n+" — "+lessonTitles[n-1]+"\n\n");
             append(lessonBody(n)+"\n");
             lastLesson = n;
+            currentTopic = lessonTitles[n-1];
+            currentTool = "";
             if (n > completedLessons) completedLessons = n;
             prefs.edit()
                     .putInt("lastLesson", lastLesson)
@@ -463,6 +478,8 @@ public class MainActivity extends Activity {
     private void showPractice(String[] parts){
         if(parts.length<2){append("practice linux | practice network | practice files\n");return;}
         String t=parts[1].toLowerCase(Locale.ROOT);
+        currentTool = t;
+        currentTopic = t.toUpperCase(Locale.ROOT)+" Tool";
         if(t.equals("linux")){
             appendYellow("GUIDED LAB — LINUX BASICS\n");
             append("1) pwd\n2) mkdir lab1\n3) cd lab1\n4) touch hello.txt\n5) echo Hello Termux-Sathi > hello.txt\n6) cat hello.txt\n7) ls\n");
@@ -477,30 +494,54 @@ public class MainActivity extends Activity {
 
     private void showExplainScreen(String command){
         terminal.setText("");
-        appendGreen("📖 WHAT'S RUNNING?\n");
+        appendGreen("📖 EXPLAIN — TERMINAL ME KYA LIKHNA HAI?\n");
         append("────────────────────────────────\n");
-        appendYellow("Command\n");
+        appendYellow("Last command\n");
         append("  "+command+"\n\n");
 
         String[] p = command.trim().split("\\s+");
         String base = p.length>0 ? p[0].toLowerCase(Locale.ROOT) : "";
 
-        appendYellow("1) Yeh kya hai?\n");
-        append(explainPurpose(base)+"\n\n");
+        appendYellow("Terminal me kya likho\n");
+        append("  "+suggestCommand(base)+"\n\n");
 
-        appendYellow("2) Is command ka kaam\n");
+        appendYellow("Enter dabane ke baad kya hoga\n");
         append(explainWork(base, command)+"\n\n");
 
-        appendYellow("3) Output ko kaise samjhein\n");
+        appendYellow("Is command ka matlab\n");
+        append(explainPurpose(base)+"\n\n");
+
+        appendYellow("Output me kya dekhna hai\n");
         append(explainOutput(base)+"\n\n");
 
-        appendYellow("4) Safe practical example\n");
+        appendYellow("Practice sequence\n");
         append(explainExample(base)+"\n\n");
 
-        appendYellow("5) Yaad rakhne wali baat\n");
+        appendYellow("Important\n");
         append(explainTip(base)+"\n\n");
 
-        appendGreen("Terminal par wapas jaane ke liye koi bhi command type karo.\n");
+        appendGreen("Current topic ko detail me padhne ke liye LESSON icon dabao.\n");
+    }
+
+    private String suggestCommand(String base){
+        switch(base){
+            case "pwd": return "pwd";
+            case "ls": return "ls";
+            case "cd": return "mkdir demo   phir   cd demo";
+            case "mkdir": return "mkdir practice";
+            case "touch": return "touch notes.txt";
+            case "cat": return "echo Hello > notes.txt   phir   cat notes.txt";
+            case "echo": return "echo Linux practice > notes.txt";
+            case "ip": return "ip addr   ya   ip route";
+            case "ping": return "ping 127.0.0.1";
+            case "nmap": return "nmap 127.0.0.1";
+            case "git": return "git status";
+            case "tool": return "tool nmap";
+            case "lesson": return "lesson 1";
+            case "apt":
+            case "pkg": return "apt update   ya   pkg install nmap  (simulation)";
+            default: return "help";
+        }
     }
 
     private String explainPurpose(String base){
@@ -623,17 +664,139 @@ public class MainActivity extends Activity {
         append("Har tool card me purpose, safe use aur practical direction milegi.\n");
     }
 
+    private void showCurrentSubject(){
+        terminal.setText("");
+        appendGreen("🎓 LESSON / TOOL EXPLAINER\n");
+        append("────────────────────────────────\n");
+        appendYellow("Current topic: "+currentTopic+"\n\n");
+
+        if(!currentTool.isEmpty()){
+            append("Yeh Kali/Linux security tool learning page hai.\n");
+            append("Tool: "+currentTool+"\n");
+            append("Purpose: "+toolPurpose(currentTool)+"\n\n");
+            appendYellow("Command format\n");
+            append(toolCommand(currentTool)+"\n\n");
+            appendYellow("Command parts ka meaning\n");
+            append(toolCommandMeaning(currentTool)+"\n\n");
+            appendYellow("Safe practical\n");
+            append(toolSafePractice(currentTool)+"\n\n");
+            appendYellow("Restricted / sensitive area\n");
+            append("Agar tool credential attacks, exploitation, wireless attacks ya payloads se related hai, app sirf lab/CTF/simulation workflow samjhata hai. Real unauthorized target instructions intentionally nahi deta.\n");
+        }else{
+            int n = lastLesson<=0 ? 1 : lastLesson;
+            append("Lesson "+n+": "+lessonTitles[n-1]+"\n\n");
+            append(lessonBody(n)+"\n\n");
+            appendYellow("Try these commands\n");
+            append(lessonCommands(n)+"\n\n");
+            appendYellow("Har command ka kaam\n");
+            append(lessonCommandMeaning(n)+"\n");
+        }
+    }
+
+    private String lessonCommands(int n){
+        if(n<=4) return "pwd\nls\nmkdir demo\ncd demo\ntouch notes.txt\necho Hello > notes.txt\ncat notes.txt";
+        if(n<=10) return "whoami\nuname\nip addr\nip route\nping 127.0.0.1";
+        if(n==11) return "nmap 127.0.0.1";
+        if(n<=20) return "help\nkali-tools\ntool nmap\nprogress";
+        if(n<=24) return "ip addr\nip route\nping 127.0.0.1\ntool wireshark";
+        if(n<=32) return "tool burpsuite\ntool sqlmap\ntool john\ntool hashcat\ntool hydra";
+        if(n<=40) return "tool wireshark\ntool aircrack-ng\ntool metasploit\ntool gdb\ntool jadx";
+        if(n<=48) return "tool yara\ntool lynis\nlesson "+n;
+        return "lesson "+n+"\nchallenge\nquiz";
+    }
+
+    private String lessonCommandMeaning(int n){
+        if(n<=4) return "pwd location batata hai; ls list dikhata hai; mkdir folder banata hai; cd folder change karta hai; touch file banata hai; echo likhta hai; cat read karta hai.";
+        if(n<=10) return "whoami user batata hai; uname system info; ip addr interfaces; ip route routing; ping connectivity test.";
+        if(n==11) return "nmap TARGET ports/services assessment ka syntax hai. Is app me simulation only.";
+        if(n<=24) return "Networking commands ko output reading aur troubleshooting ke liye use karo.";
+        if(n<=32) return "Web/password tools ko sirf local lab, dummy accounts, test hashes aur CTF me samjho.";
+        if(n<=40) return "Wireless/exploitation/reversing topics me concepts, artifacts aur lab workflow focus hai.";
+        return "Commands topic ko inspect, simulate ya defensive analysis karne ke liye diye gaye hain.";
+    }
+
+    private String toolPurpose(String t){
+        switch(t){
+            case "nmap": return "Host, port aur service discovery/assessment.";
+            case "burpsuite": return "Web request/response interception aur testing.";
+            case "sqlmap": return "SQL injection assessment automation in a permitted lab.";
+            case "john": return "Test hashes ki password auditing.";
+            case "hashcat": return "Offline password hash auditing.";
+            case "hydra": return "Authentication testing against test accounts/services.";
+            case "wireshark":
+            case "tshark":
+            case "tcpdump": return "Network packets capture/analysis.";
+            case "aircrack-ng": return "Wireless security learning and lab analysis.";
+            case "metasploit": return "Exploit-development/testing framework concepts in isolated labs.";
+            case "gdb": return "Native binary debugging.";
+            case "jadx": return "Android APK decompilation for your own/test apps.";
+            case "yara": return "Pattern-based malware/file classification.";
+            case "lynis": return "Linux system auditing and hardening.";
+            default: return "Kali/Linux security tool. Use 'kali-tools' for category context.";
+        }
+    }
+
+    private String toolCommand(String t){
+        switch(t){
+            case "nmap": return "nmap 127.0.0.1";
+            case "burpsuite": return "tool burpsuite   (concept card)";
+            case "sqlmap": return "tool sqlmap   (lab concept card)";
+            case "john": return "tool john   (test-hash workflow)";
+            case "hashcat": return "tool hashcat   (offline test-hash workflow)";
+            case "hydra": return "tool hydra   (dummy-account lab workflow)";
+            case "wireshark":
+            case "tshark":
+            case "tcpdump": return "tool "+t+"   (packet-analysis lesson)";
+            case "aircrack-ng": return "tool aircrack-ng   (wireless lab concepts)";
+            case "metasploit": return "tool metasploit   (isolated-lab concepts)";
+            case "gdb": return "tool gdb";
+            case "jadx": return "tool jadx";
+            case "yara": return "tool yara";
+            case "lynis": return "tool lynis";
+            default: return "tool "+t;
+        }
+    }
+
+    private String toolCommandMeaning(String t){
+        if(t.equals("nmap")) return "nmap program name hai; 127.0.0.1 localhost hai, yani apna device/lab endpoint.";
+        return "'tool' app ka learning command hai; uske baad tool ka naam likhne se uska lesson card khulta hai.";
+    }
+
+    private String toolSafePractice(String t){
+        if(t.equals("nmap")) return "nmap 127.0.0.1 chalao → output dekho → EXPLAIN icon dabao.";
+        if(t.equals("john")||t.equals("hashcat")||t.equals("hydra")) return "Dummy password/test hash lesson padho; real credentials/accounts par use mat karo.";
+        if(t.equals("metasploit")||t.equals("sqlmap")||t.equals("aircrack-ng")) return "Isolated intentionally-vulnerable lab/CTF concept page use karo. App real attack execute nahi karta.";
+        return "tool "+t+" kholo → LESSON icon dabao → purpose, command meaning aur safe workflow padho.";
+    }
+
     private void showKaliTools(){
-        appendYellow("KALI TOOL CATEGORIES\n");
-        append("Information Gathering: nmap, whois, dig\n");
-        append("Web: burpsuite, whatweb, nikto, gobuster, sqlmap\n");
-        append("Passwords: john, hashcat, hydra\n");
-        append("Wireless: aircrack-ng, kismet\n");
-        append("Forensics: yara, foremost, autopsy, exiftool\n");
-        append("Reverse Engineering: gdb, radare2, rizin, ghidra, jadx\n");
-        append("Packet Analysis: tcpdump, tshark, wireshark\n");
-        append("System Audit: lynis, clamav\n");
-        append("\nUse: tool nmap\n");
+        terminal.setText("");
+        appendGreen("KALI LINUX TOOLS — LEARNING INDEX\n");
+        append("Categories aur common Kali packages. Actual Kali me hundreds of packages hote hain; APK un sab binaries ko bundle nahi karta. Learning index yahan app ke andar hai.\n\n");
+
+        appendYellow("Information Gathering\n");
+        append("nmap, masscan, netdiscover, whois, dnsenum, dnsrecon, fierce, recon-ng, theHarvester, whatweb, wafw00f, amass\n\n");
+        appendYellow("Vulnerability Analysis\n");
+        append("nikto, nuclei, lynis, openvas/gvm concepts, searchsploit\n\n");
+        appendYellow("Web Application\n");
+        append("burpsuite, zap concepts, gobuster, dirb, dirsearch, feroxbuster, sqlmap, wfuzz, ffuf, commix concepts\n\n");
+        appendYellow("Password / Authentication Auditing\n");
+        append("john, hashcat, hydra, medusa, crunch, cewl, wordlists\n\n");
+        appendYellow("Wireless\n");
+        append("aircrack-ng suite, kismet, reaver/bully concepts, hcxdumptool concepts\n\n");
+        appendYellow("Sniffing / Spoofing / Traffic Analysis\n");
+        append("wireshark, tshark, tcpdump, ettercap concepts, bettercap concepts\n\n");
+        appendYellow("Exploitation Frameworks — lab concepts\n");
+        append("metasploit-framework, searchsploit, exploitdb concepts\n\n");
+        appendYellow("Forensics\n");
+        append("autopsy, sleuthkit, binwalk, foremost, exiftool, volatility concepts, yara, strings, file\n\n");
+        appendYellow("Reverse Engineering\n");
+        append("gdb, radare2, rizin, ghidra, jadx, apktool concepts, strace, ltrace\n\n");
+        appendYellow("Reporting / Defensive / Utility\n");
+        append("lynis, clamav, openssl, curl, wget, git, python, bash, netcat concepts, socat concepts\n\n");
+
+        append("Open: tool nmap   |   tool burpsuite   |   tool john   |   tool metasploit\n");
+        append("Then LESSON icon dabao for full explanation.\n");
     }
 
     private void showTool(String[] parts){
@@ -672,6 +835,23 @@ public class MainActivity extends Activity {
             case "metasploit":
                 appendYellow("METASPLOIT\n");
                 append("Purpose: security testing framework. Is learning app me exploitation execute nahi hota; concepts/lab use only.\n");
+                break;
+
+            case "aircrack-ng":
+                appendYellow("AIRCRACK-NG — WIRELESS LAB CONCEPT\n");
+                append("Purpose: wireless security auditing concepts. Android hardware/root/kernel limits apply.\nPractice: isolated lab captures/CTF material only.\n");
+                break;
+            case "jadx":
+                appendYellow("JADX\n");
+                append("Purpose: Android APK bytecode/resources inspect karna, apne/test apps par.\n");
+                break;
+            case "lynis":
+                appendYellow("LYNIS\n");
+                append("Purpose: Linux system audit aur hardening recommendations.\n");
+                break;
+            case "tcpdump":
+                appendYellow("TCPDUMP\n");
+                append("Purpose: packet capture/inspection concepts. App live capture execute nahi karta.\n");
                 break;
             case "yara":
                 appendYellow("YARA\n");
