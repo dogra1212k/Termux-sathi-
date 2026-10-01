@@ -35,3 +35,5 @@ Fresh build verification trigger.
 Self-contained learning terminal build verification.
 
 Learning terminal v2.1 build verification trigger.
+
+Learning terminal v2.2 build verification trigger.
