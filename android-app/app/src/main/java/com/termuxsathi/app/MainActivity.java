@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.content.SharedPreferences;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -42,6 +43,10 @@ public class MainActivity extends Activity {
     private ScrollView terminalScroll;
     private File currentDir;
     private final List<String> history = new ArrayList<>();
+    private SharedPreferences prefs;
+    private int lastLesson = 0;
+    private int completedLessons = 0;
+    private int quizScore = 0;
 
     private final String[] lessonTitles = {
             "Linux Terminal Basics","pwd, ls aur cd","mkdir, touch aur files",
@@ -57,6 +62,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         currentDir = getFilesDir();
+        prefs = getSharedPreferences("termux_sathi_progress", MODE_PRIVATE);
+        lastLesson = prefs.getInt("lastLesson", 0);
+        completedLessons = prefs.getInt("completedLessons", 0);
+        quizScore = prefs.getInt("quizScore", 0);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -177,9 +186,10 @@ public class MainActivity extends Activity {
         appendGreen("TERMUX-SATHI LEARNING TERMINAL v2.0\n");
         append("Safe training shell ready. External app ki zarurat nahi.\n\n");
         appendYellow("Start: "); append("help\n");
-        appendYellow("Course: "); append("lessons   |   lesson 1\n");
+        appendYellow("Course: "); append("lessons   |   lesson 1   |   next   |   progress\n");
         appendYellow("Practice: "); append("practice linux   |   practice network\n");
-        appendYellow("Tools: "); append("kali-tools   |   tool nmap\n\n");
+        appendYellow("Tools: "); append("kali-tools   |   tool nmap\n");
+        appendYellow("Test: "); append("quiz   |   challenge\n\n");
         append("Filesystem commands app ke private sandbox me real files par kaam karte hain.\n");
         appendPrompt();
     }
@@ -198,6 +208,10 @@ public class MainActivity extends Activity {
                 case "help": showHelp(); break;
                 case "clear": terminal.setText(""); break;
                 case "lessons": showLessons(); break;
+                case "progress": showProgress(); break;
+                case "next": showNextLesson(); break;
+                case "quiz": showQuiz(); break;
+                case "challenge": showChallenge(); break;
                 case "lesson": showLesson(parts); break;
                 case "practice": showPractice(parts); break;
                 case "kali-tools": showKaliTools(); break;
@@ -239,7 +253,7 @@ public class MainActivity extends Activity {
 
     private void showHelp(){
         appendYellow("SUPPORTED COMMANDS\n");
-        append("Learning:\n  lessons\n  lesson N\n  practice linux\n  practice network\n  kali-tools\n  tool NAME\n\n");
+        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  challenge\n  practice linux\n  practice network\n  kali-tools\n  tool NAME\n\n");
         append("Filesystem:\n  pwd  ls  cd  mkdir  touch  cat  echo  rm\n\n");
         append("System/training:\n  whoami  uname  date  history  clear  reset\n");
         append("  ip addr  ip route  ping HOST  nmap TARGET\n");
@@ -263,6 +277,13 @@ public class MainActivity extends Activity {
             if(n<1||n>lessonTitles.length){appendRed("Lesson 1-"+lessonTitles.length+" choose karo.\n");return;}
             appendYellow("LESSON "+n+" — "+lessonTitles[n-1]+"\n\n");
             append(lessonBody(n)+"\n");
+            lastLesson = n;
+            if (n > completedLessons) completedLessons = n;
+            prefs.edit()
+                    .putInt("lastLesson", lastLesson)
+                    .putInt("completedLessons", completedLessons)
+                    .apply();
+            appendGreen("\n✓ Progress saved. Next: "+(n < lessonTitles.length ? "lesson "+(n+1) : "course complete")+"\n");
         }catch(NumberFormatException e){
             appendRed("Example: lesson 3\n");
         }
@@ -292,6 +313,57 @@ public class MainActivity extends Activity {
             case 20:return "NetHunter Rootless me userland tools milte hain, but monitor mode, injection, kernel modules aur some hardware features limited hote hain.";
             default:return "";
         }
+    }
+
+
+    private void showProgress(){
+        int percent = (int)Math.round((completedLessons * 100.0) / lessonTitles.length);
+        appendYellow("COURSE PROGRESS\n");
+        append("Completed: "+completedLessons+"/"+lessonTitles.length+" lessons\n");
+        append("Progress: "+percent+"%\n");
+        append("Last lesson: "+(lastLesson==0 ? "Not started" : lastLesson+" — "+lessonTitles[lastLesson-1])+"\n");
+        append("Quiz best score: "+quizScore+"/5\n");
+        append("\n"+progressBar(percent)+"\n");
+    }
+
+    private String progressBar(int percent){
+        int filled = percent / 10;
+        StringBuilder b = new StringBuilder("[");
+        for(int i=0;i<10;i++) b.append(i<filled ? "#" : "-");
+        return b.append("] ").append(percent).append("%").toString();
+    }
+
+    private void showNextLesson(){
+        int next = lastLesson <= 0 ? 1 : Math.min(lastLesson + 1, lessonTitles.length);
+        showLesson(new String[]{"lesson", String.valueOf(next)});
+    }
+
+    private void showQuiz(){
+        appendYellow("QUICK QUIZ — 5 QUESTIONS\n");
+        append("1) pwd kya dikhata hai?\n");
+        append("   A current directory   B password   C process\n");
+        append("2) ls ka use?\n");
+        append("   A files list   B login   C network scan\n");
+        append("3) mkdir kya banata hai?\n");
+        append("   A file   B directory   C user\n");
+        append("4) Nmap ka safe beginner use?\n");
+        append("   A localhost/lab scan   B random targets   C password theft\n");
+        append("5) SHA-256 kis kaam me useful?\n");
+        append("   A integrity hash   B video edit   C Wi-Fi password\n");
+        append("\nAnswers check: quiz-answer A A B A A\n");
+        append("Learning mode intentionally open-book hai. Pehle samjho, phir yaad karo.\n");
+    }
+
+    private void showChallenge(){
+        appendYellow("DAILY CHALLENGE\n");
+        append("1) mkdir challenge\n");
+        append("2) cd challenge\n");
+        append("3) touch note.txt\n");
+        append("4) echo Linux practice > note.txt\n");
+        append("5) cat note.txt\n");
+        append("6) cd ..\n");
+        append("7) practice network\n");
+        append("\nGoal: bina help dekhe sequence complete karo.\n");
     }
 
     private void showPractice(String[] parts){
