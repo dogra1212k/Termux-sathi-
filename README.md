@@ -4,18 +4,40 @@ Android पर Termux और Kali NetHunter Rootless सीखने के ल�
 
 > ⚠️ यह project learning और authorized practice के लिए है. Commands अपने device, lab, CTF या permission वाले system पर ही चलाएँ.
 
-## 🐉 Kali Linux Tools Guide
+## 🐉 Kali Linux Complete Learning Hub
 
-पूरी step-by-step tools guide: **[KALI_TOOLS_GUIDE.md](KALI_TOOLS_GUIDE.md)**
+अब Kali section को एक complete structured hub में organize किया गया है:
 
-इसमें tool का काम, install command, basic CMD, safe practical और Rootless limitations शामिल हैं.
+- **[KALI_MASTER_INDEX.md](KALI_MASTER_INDEX.md)** — master navigation, official tool categories और learning routes
+- **[KALI_TOOLS_GUIDE.md](KALI_TOOLS_GUIDE.md)** — large category guide, install commands, practicals और troubleshooting
+- **[KALI_TOOLS_PRACTICAL.md](KALI_TOOLS_PRACTICAL.md)** — step-by-step hands-on practical chapters
+- **[KALI_QUICK_REFERENCE.md](KALI_QUICK_REFERENCE.md)** — fast command cheat sheet
+- **[NETHUNTER_ROOTLESS_GUIDE.md](NETHUNTER_ROOTLESS_GUIDE.md)** — Android/NetHunter Rootless setup, KeX और limitations
+- **[SAFE_LABS.md](SAFE_LABS.md)** — reusable localhost/filesystem practice labs
+
+### One-command Kali collections
+
+```bash
+sudo apt update
+sudo apt full-upgrade -y
+sudo apt install kali-tools-top10 -y
+```
+
+Default Kali toolset:
+
+```bash
+sudo apt install kali-linux-default -y
+```
+
+Maximum Kali collection:
+
+```bash
+sudo apt install kali-linux-everything -y
+```
+
+> Android/NetHunter Rootless पर `kali-linux-everything` blindly install करना practical नहीं हो सकता. Storage, RAM, GUI, kernel और hardware limitations पहले check करें.
 
 ---
-
-## 🐉 Kali Tools Guides
-
-- [Kali Linux Tools — Complete Category Guide](KALI_TOOLS_GUIDE.md)
-- [Kali Linux Tools — Step-by-Step Practical Guide](KALI_TOOLS_PRACTICAL.md)
 
 ## 📚 Learning Path
 
