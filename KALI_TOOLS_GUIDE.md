@@ -1,3 +1,5 @@
+> 📚 **Navigation:** [Master Index](KALI_MASTER_INDEX.md) · [Practical Guide](KALI_TOOLS_PRACTICAL.md) · [Quick Reference](KALI_QUICK_REFERENCE.md) · [Rootless Guide](NETHUNTER_ROOTLESS_GUIDE.md) · [Safe Labs](SAFE_LABS.md)
+
 # 🐉 Kali Linux Tools — Step-by-Step Hindi Guide
 
 यह guide Kali Linux के common tools को समझने और **अपने device, localhost, lab, CTF या explicitly authorized system** पर practice करने के लिए है.
@@ -2153,29 +2155,6 @@ Practice sirf apni files par karein.
 9. Aircrack/Kismet ke help aur local hardware interfaces inspect karo.
 10. mitmproxy ko localhost-only mode me start karo.
 
----
-
-# 🚀 Next Practical Batch
-
-Next batch:
-
-```text
-OpenVPN
-Tor basics
-ProxyChains
-ClamAV
-Ghidra
-Sleuth Kit
-ExifTool advanced
-dd / ddrescue
-SQLite tools
-tmux
-SSH
-Git
-Docker/container basics where supported
-Kali troubleshooting toolkit
-```
-
 
 ---
 
@@ -2848,32 +2827,6 @@ Rootless environments can deny kernel logs.
 11. Local Git repo me first commit banao.
 12. Troubleshooting flow se disk, RAM aur network check karo.
 
----
-
-# 🚀 Next Practical Batch
-
-Next batch me deeper defensive/admin tools cover honge:
-
-```text
-rsync
-rsyslog/log analysis
-journalctl where supported
-lsof
-strace
-ltrace
-htop
-iotop
-ncdu
-jq
-ripgrep
-screen
-cron
-systemd/service concepts
-Python venv/pipx
-Kali package maintenance
-backup/restore workflow
-```
-
 
 ---
 
@@ -3541,34 +3494,6 @@ chmod +x ~/system-check.sh
 9. tar + SHA-256 backup workflow complete karo.
 10. Mini system diagnostic script run karo.
 
----
-
-# 🚀 Next Practical Batch
-
-Next batch me monitoring aur defensive analysis tools:
-
-```text
-watch
-vmstat
-iostat
-sar
-sysstat
-dstat
-iftop
-nethogs
-bmon
-traceroute
-mtr
-whois
-host
-openssl s_client
-logrotate
-fail2ban concepts
-AppArmor concepts
-UFW/nftables concepts
-system hardening checklist
-```
-
 
 ---
 
@@ -4180,40 +4105,6 @@ watch -n 5 ~/monitor-check.sh
 8. OpenSSL se TLS certificate dates inspect karo.
 9. `logrotate -d` dry run karo.
 10. Listening ports aur package status ke saath hardening checklist complete karo.
-
----
-
-# 🚀 Next Practical Batch
-
-Next batch me developer/security utility tools aur file/data workflows:
-
-```text
-make
-gcc/g++
-cmake
-pkg-config
-python3-pip
-pipx workflows
-node/npm basics
-go basics
-ruby basics
-perl basics
-zip/unzip/7z
-xz
-zstd
-hexdump/xxd
-objdump/readelf/nm
-strings advanced
-gpg
-age
-rsync over SSH
-scp/sftp
-aria2
-parallel
-shellcheck
-yamllint
-jsonlint
-```
 
 
 ---
@@ -4916,6 +4807,50 @@ Exploit, credential attacks, interception, spoofing aur destructive workflows si
 12. Reverse engineering tools ke version/help verify karo.
 
 ---
+
+
+
+---
+
+# ✅ Course Completion Status
+
+The Kali tools section is now organized as a complete learning set rather than an endless batch queue.
+
+Covered areas include:
+
+```text
+Kali metapackages
+Linux/admin basics
+network diagnostics
+packet analysis
+web testing
+password-auditing tool references
+wireless/hardware limitations
+forensics
+reverse engineering
+VPN/proxy basics
+system monitoring
+hardening
+developer/build tools
+archives/compression
+crypto/signing
+SSH/file transfer
+backup/restore
+Android NetHunter Rootless limitations
+safe localhost labs
+troubleshooting
+quick-reference commands
+```
+
+For packages that change across Kali releases, always verify the current package/tool name with:
+
+```bash
+apt search '^kali-tools-'
+apt search '^kali-linux-'
+apt search TOOL_NAME
+```
+
+High-risk offensive tools are intentionally limited here to installation, help, concepts, and isolated lab/CTF boundaries.
 
 # 🏁 Guide Status
 
