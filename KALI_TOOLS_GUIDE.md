@@ -2175,3 +2175,701 @@ Git
 Docker/container basics where supported
 Kali troubleshooting toolkit
 ```
+
+
+---
+
+# 🧪 Practical Chapters — Batch 3
+
+Is batch me VPN/proxy basics, malware scanning, reverse engineering, digital forensics, disk imaging, SSH, tmux, SQLite aur troubleshooting tools cover honge.
+
+> ⚠️ Network/privacy tools ko access-control bypass ke liye use mat karein. Disk imaging commands ko real storage devices par tabhi chalayein jab device/path 100% verify ho.
+
+## Tool 43 — OpenVPN
+
+**Kaam:** VPN configuration ke through authorized network se securely connect karna.
+
+Install:
+
+```bash
+sudo apt install openvpn -y
+```
+
+Version:
+
+```bash
+openvpn --version
+```
+
+Config test:
+
+```bash
+openvpn --config training.ovpn
+```
+
+Use only VPN configuration jo aapki ho ya jiske use ki permission ho.
+
+Stop:
+
+```text
+Ctrl + C
+```
+
+---
+
+## Tool 44 — Tor
+
+Install:
+
+```bash
+sudo apt install tor -y
+```
+
+Version:
+
+```bash
+tor --version
+```
+
+Start service where supported:
+
+```bash
+sudo service tor start
+```
+
+Status:
+
+```bash
+sudo service tor status
+```
+
+Rootless/proot environments me service management limited ho sakta hai.
+
+Tor privacy network hai, permission controls bypass karne ka license nahi.
+
+---
+
+## Tool 45 — ProxyChains
+
+Install:
+
+```bash
+sudo apt install proxychains4 -y
+```
+
+Config location:
+
+```bash
+ls -l /etc/proxychains4.conf
+```
+
+Help:
+
+```bash
+proxychains4 -h
+```
+
+Apne configured proxy ke through harmless connectivity test:
+
+```bash
+proxychains4 curl https://example.com
+```
+
+Proxy configuration valid hona zaroori hai.
+
+---
+
+## Tool 46 — ClamAV
+
+**Kaam:** malware/signature-based file scanning.
+
+Install:
+
+```bash
+sudo apt install clamav -y
+```
+
+Version:
+
+```bash
+clamscan --version
+```
+
+Definitions update where supported:
+
+```bash
+sudo freshclam
+```
+
+Own folder scan:
+
+```bash
+mkdir -p ~/scan-lab
+echo "Termux-Sathi safe sample" > ~/scan-lab/sample.txt
+clamscan -r ~/scan-lab
+```
+
+Summary only:
+
+```bash
+clamscan -r --infected ~/scan-lab
+```
+
+---
+
+## Tool 47 — Ghidra
+
+**Kaam:** reverse engineering aur binary analysis.
+
+Install:
+
+```bash
+sudo apt install ghidra -y
+```
+
+Start:
+
+```bash
+ghidra
+```
+
+GUI/desktop environment required ho sakta hai.
+
+Practice binary:
+
+```bash
+cat > ghidra-demo.c <<'EOF'
+#include <stdio.h>
+int main() {
+    puts("Termux-Sathi Ghidra Lab");
+    return 0;
+}
+EOF
+
+gcc ghidra-demo.c -o ghidra-demo
+```
+
+Is apne compiled binary ko Ghidra project me import karke analyze karein.
+
+---
+
+## Tool 48 — Sleuth Kit
+
+Install:
+
+```bash
+sudo apt install sleuthkit -y
+```
+
+Version/help:
+
+```bash
+fls -V
+fls -h
+```
+
+Useful tools:
+
+```text
+fls     = filesystem entries
+icat    = file content extraction
+mmls    = partition layout
+fsstat  = filesystem details
+```
+
+Use copied disk images/test images par.
+
+---
+
+## Tool 49 — dd
+
+**Kaam:** raw byte-level copy.
+
+Version/help:
+
+```bash
+dd --version
+```
+
+Safe test-file practical:
+
+```bash
+dd if=/dev/zero of=training.img bs=1M count=10 status=progress
+```
+
+Check:
+
+```bash
+ls -lh training.img
+```
+
+Copy:
+
+```bash
+dd if=training.img of=training-copy.img bs=1M status=progress
+```
+
+Verify:
+
+```bash
+sha256sum training.img training-copy.img
+```
+
+> `dd` me wrong `of=` path real disk/data overwrite kar sakta hai. Real block devices par bina full verification use mat karein.
+
+---
+
+## Tool 50 — GNU ddrescue
+
+**Kaam:** failing/damaged media se recoverable data copy karna.
+
+Install:
+
+```bash
+sudo apt install gddrescue -y
+```
+
+Version:
+
+```bash
+ddrescue --version
+```
+
+Safe file-to-file practice:
+
+```bash
+ddrescue training.img rescued.img rescue.log
+```
+
+Check:
+
+```bash
+ls -lh rescued.img rescue.log
+```
+
+Resume capability ke liye map/log file useful hoti hai.
+
+---
+
+## Tool 51 — ExifTool Advanced
+
+Install:
+
+```bash
+sudo apt install libimage-exiftool-perl -y
+```
+
+All metadata:
+
+```bash
+exiftool training.jpg
+```
+
+Specific fields:
+
+```bash
+exiftool -FileName -FileSize -MIMEType training.jpg
+```
+
+Recursive scan:
+
+```bash
+exiftool -r ~/Pictures
+```
+
+Metadata may contain private location/device information, so reports share karte waqt review karein.
+
+---
+
+## Tool 52 — SQLite
+
+Install:
+
+```bash
+sudo apt install sqlite3 -y
+```
+
+Version:
+
+```bash
+sqlite3 --version
+```
+
+Database create:
+
+```bash
+sqlite3 termux_sathi.db
+```
+
+Inside SQLite:
+
+```sql
+CREATE TABLE notes(
+    id INTEGER PRIMARY KEY,
+    text TEXT
+);
+
+INSERT INTO notes(text) VALUES('Kali tools practice');
+SELECT * FROM notes;
+.tables
+.quit
+```
+
+CLI one-liner:
+
+```bash
+sqlite3 termux_sathi.db 'SELECT * FROM notes;'
+```
+
+---
+
+## Tool 53 — tmux
+
+**Kaam:** ek terminal ke andar multiple persistent terminal sessions.
+
+Install:
+
+```bash
+sudo apt install tmux -y
+```
+
+Start:
+
+```bash
+tmux
+```
+
+Named session:
+
+```bash
+tmux new -s kali-lab
+```
+
+Detach:
+
+```text
+Ctrl+b, then d
+```
+
+Sessions:
+
+```bash
+tmux ls
+```
+
+Reattach:
+
+```bash
+tmux attach -t kali-lab
+```
+
+---
+
+## Tool 54 — SSH Client
+
+Install:
+
+```bash
+sudo apt install openssh-client -y
+```
+
+Version:
+
+```bash
+ssh -V
+```
+
+Connect to your own authorized server:
+
+```bash
+ssh username@SERVER_IP
+```
+
+Custom port:
+
+```bash
+ssh -p 2222 username@SERVER_IP
+```
+
+Verbose troubleshooting:
+
+```bash
+ssh -v username@SERVER_IP
+```
+
+---
+
+## Tool 55 — SSH Server
+
+Install:
+
+```bash
+sudo apt install openssh-server -y
+```
+
+Config syntax test:
+
+```bash
+sudo sshd -t
+```
+
+Service start where supported:
+
+```bash
+sudo service ssh start
+```
+
+Listening port:
+
+```bash
+ss -tln | grep ':22'
+```
+
+Rootless/proot Android me incoming networking/service behavior platform restrictions se affected ho sakta hai.
+
+---
+
+## Tool 56 — SSH Keys
+
+Key pair:
+
+```bash
+ssh-keygen -t ed25519
+```
+
+Public key:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Permissions:
+
+```bash
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_ed25519
+```
+
+> Private key `id_ed25519` kabhi share/upload mat karein. Public key `.pub` sharing ke liye hoti hai.
+
+---
+
+## Tool 57 — Git
+
+Install:
+
+```bash
+sudo apt install git -y
+```
+
+Version:
+
+```bash
+git --version
+```
+
+Local-only practice:
+
+```bash
+mkdir -p ~/git-lab
+cd ~/git-lab
+git init
+echo "Termux-Sathi" > README.md
+git add README.md
+git status
+```
+
+Identity configure karne ke baad:
+
+```bash
+git commit -m "Initial lab commit"
+git log --oneline
+```
+
+---
+
+## Tool 58 — Docker / Container Basics
+
+Kali package where supported:
+
+```bash
+sudo apt install docker.io -y
+```
+
+Version:
+
+```bash
+docker --version
+```
+
+Status where system service support exists:
+
+```bash
+sudo service docker status
+```
+
+> NetHunter Rootless/proot Android me Docker daemon usually required kernel/cgroup capabilities ke bina kaam nahi karega. Package install hona support guarantee nahi hai.
+
+---
+
+# 🔧 Kali Troubleshooting Toolkit
+
+## A. Command not found
+
+```bash
+which TOOL
+command -v TOOL
+apt search TOOL
+```
+
+## B. Package install error
+
+```bash
+sudo apt update
+sudo apt --fix-broken install
+sudo dpkg --configure -a
+```
+
+## C. Disk space
+
+```bash
+df -h
+du -sh ~
+du -h ~ | sort -h | tail
+```
+
+APT cache:
+
+```bash
+sudo apt clean
+```
+
+## D. Memory
+
+```bash
+free -h
+ps aux --sort=-%mem | head
+```
+
+## E. CPU/process issue
+
+```bash
+top
+ps aux --sort=-%cpu | head
+```
+
+## F. Network
+
+```bash
+ip addr
+ip route
+ping -c 4 1.1.1.1
+nslookup example.com
+curl -I https://example.com
+```
+
+## G. DNS
+
+```bash
+cat /etc/resolv.conf
+dig example.com
+```
+
+## H. Port/service
+
+```bash
+ss -tuln
+```
+
+## I. Permission denied
+
+```bash
+ls -l FILE
+id
+```
+
+Executable script:
+
+```bash
+chmod +x script.sh
+```
+
+## J. Broken shell config
+
+```bash
+bash -n ~/.bashrc
+```
+
+Backup restore:
+
+```bash
+cp ~/.bashrc.backup ~/.bashrc
+source ~/.bashrc
+```
+
+## K. Package information
+
+```bash
+apt policy PACKAGE
+apt show PACKAGE
+dpkg -l | grep PACKAGE
+```
+
+## L. Logs
+
+Traditional logs where available:
+
+```bash
+ls -lah /var/log
+```
+
+Recent kernel output access may be restricted:
+
+```bash
+dmesg | tail
+```
+
+Rootless environments can deny kernel logs.
+
+---
+
+# ✅ Batch 3 Practice Challenge
+
+1. OpenVPN version check karo.
+2. Tor package/version inspect karo.
+3. ClamAV se apna test folder scan karo.
+4. Ghidra me apna compiled binary import karo.
+5. `dd` se 10 MB training image banao.
+6. SHA-256 se original/copy verify karo.
+7. ddrescue se test image copy karo.
+8. SQLite database/table banao.
+9. tmux session create-detach-attach karo.
+10. SSH key pair banao aur private/public key ka difference samjho.
+11. Local Git repo me first commit banao.
+12. Troubleshooting flow se disk, RAM aur network check karo.
+
+---
+
+# 🚀 Next Practical Batch
+
+Next batch me deeper defensive/admin tools cover honge:
+
+```text
+rsync
+rsyslog/log analysis
+journalctl where supported
+lsof
+strace
+ltrace
+htop
+iotop
+ncdu
+jq
+ripgrep
+screen
+cron
+systemd/service concepts
+Python venv/pipx
+Kali package maintenance
+backup/restore workflow
+```
