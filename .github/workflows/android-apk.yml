@@ -29,21 +29,24 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
+        shell: bash
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Set up Gradle
+      - name: Set up Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
 
       - name: Build debug APK
         working-directory: android-app
-        run: gradle :app:assembleDebug --stacktrace
+        run: gradle :app:assembleDebug --stacktrace --no-daemon
 
-      - name: Prepare APK
+      - name: Verify APK
+        shell: bash
         run: |
+          test -f android-app/app/build/outputs/apk/debug/app-debug.apk
           cp android-app/app/build/outputs/apk/debug/app-debug.apk Termux-Sathi-debug.apk
           ls -lh Termux-Sathi-debug.apk
 
@@ -55,8 +58,9 @@ jobs:
           if-no-files-found: error
 
       - name: Publish latest debug APK
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete termux-sathi-debug --cleanup-tag -y || true
-          gh release create termux-sathi-debug Termux-Sathi-debug.apk             --target "$GITHUB_SHA"             --title "Termux-Sathi Debug APK"             --notes "Automatically built debug APK from the latest Android app source."
+          gh release create termux-sathi-debug Termux-Sathi-debug.apk --target "$GITHUB_SHA" --title "Termux-Sathi Debug APK" --notes "Automatically built debug APK from the latest Android app source."
