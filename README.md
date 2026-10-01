@@ -4,6 +4,14 @@ Android पर Termux और Kali NetHunter Rootless सीखने के ल�
 
 > ⚠️ यह project learning और authorized practice के लिए है. Commands अपने device, lab, CTF या permission वाले system पर ही चलाएँ.
 
+## 🐉 Kali Linux Tools Guide
+
+पूरी step-by-step tools guide: **[KALI_TOOLS_GUIDE.md](KALI_TOOLS_GUIDE.md)**
+
+इसमें tool का काम, install command, basic CMD, safe practical और Rootless limitations शामिल हैं.
+
+---
+
 ## 📚 Learning Path
 
 1. Termux Setup
