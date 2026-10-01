@@ -39,6 +39,57 @@ sudo apt install kali-linux-everything -y
 
 ---
 
+## 🚀 Run Termux-Sathi Toolkit
+
+Repo clone:
+
+```bash
+git clone https://github.com/dogra1212k/Termux-sathi-.git
+cd Termux-sathi-
+```
+
+Setup:
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+Launcher:
+
+```bash
+./termux-sathi.sh
+```
+
+Launcher me available practicals:
+
+```text
+System Check
+Network Lab
+Nmap Local Lab
+Backup Lab
+Python Practice
+Git Practice
+Quick Reference
+Kali Master Index
+Safe Labs Guide
+```
+
+Individual labs:
+
+```bash
+bash labs/system-check.sh
+bash labs/network-lab.sh
+bash labs/nmap-lab.sh
+bash labs/backup-lab.sh
+python3 labs/python-lab.py
+bash labs/git-lab.sh
+```
+
+GitHub Actions automatically Bash aur Python syntax check karta hai.
+
+---
+
 ## 📚 Learning Path
 
 1. Termux Setup
