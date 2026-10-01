@@ -47,6 +47,8 @@ public class MainActivity extends Activity {
     private int lastLesson = 0;
     private int completedLessons = 0;
     private int quizScore = 0;
+    private int quizQuestion = 0;
+    private int quizCurrentScore = 0;
 
     private final String[] lessonTitles = {
             "Linux Terminal Basics","pwd, ls aur cd","mkdir, touch aur files",
@@ -189,7 +191,7 @@ public class MainActivity extends Activity {
         appendYellow("Course: "); append("lessons   |   lesson 1   |   next   |   progress\n");
         appendYellow("Practice: "); append("practice linux   |   practice network\n");
         appendYellow("Tools: "); append("kali-tools   |   tool nmap\n");
-        appendYellow("Test: "); append("quiz   |   challenge\n\n");
+        appendYellow("Test: "); append("quiz   |   challenge   |   cheatsheet   |   badges\n\n");
         append("Filesystem commands app ke private sandbox me real files par kaam karte hain.\n");
         appendPrompt();
     }
@@ -210,7 +212,10 @@ public class MainActivity extends Activity {
                 case "lessons": showLessons(); break;
                 case "progress": showProgress(); break;
                 case "next": showNextLesson(); break;
-                case "quiz": showQuiz(); break;
+                case "quiz": startQuiz(); break;
+                case "answer": checkQuizAnswer(parts); break;
+                case "cheatsheet": showCheatSheet(); break;
+                case "badges": showBadges(); break;
                 case "challenge": showChallenge(); break;
                 case "lesson": showLesson(parts); break;
                 case "practice": showPractice(parts); break;
@@ -253,7 +258,7 @@ public class MainActivity extends Activity {
 
     private void showHelp(){
         appendYellow("SUPPORTED COMMANDS\n");
-        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  challenge\n  practice linux\n  practice network\n  kali-tools\n  tool NAME\n\n");
+        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  answer A|B|C\n  challenge\n  cheatsheet\n  badges\n  practice linux\n  practice network\n  kali-tools\n  tool NAME\n\n");
         append("Filesystem:\n  pwd  ls  cd  mkdir  touch  cat  echo  rm\n\n");
         append("System/training:\n  whoami  uname  date  history  clear  reset\n");
         append("  ip addr  ip route  ping HOST  nmap TARGET\n");
@@ -338,20 +343,90 @@ public class MainActivity extends Activity {
         showLesson(new String[]{"lesson", String.valueOf(next)});
     }
 
-    private void showQuiz(){
-        appendYellow("QUICK QUIZ — 5 QUESTIONS\n");
-        append("1) pwd kya dikhata hai?\n");
-        append("   A current directory   B password   C process\n");
-        append("2) ls ka use?\n");
-        append("   A files list   B login   C network scan\n");
-        append("3) mkdir kya banata hai?\n");
-        append("   A file   B directory   C user\n");
-        append("4) Nmap ka safe beginner use?\n");
-        append("   A localhost/lab scan   B random targets   C password theft\n");
-        append("5) SHA-256 kis kaam me useful?\n");
-        append("   A integrity hash   B video edit   C Wi-Fi password\n");
-        append("\nAnswers check: quiz-answer A A B A A\n");
-        append("Learning mode intentionally open-book hai. Pehle samjho, phir yaad karo.\n");
+    private void startQuiz(){
+        quizQuestion = 1;
+        quizCurrentScore = 0;
+        appendYellow("QUIZ MODE START\n");
+        append("5 questions. Answer with: answer A\n\n");
+        showCurrentQuizQuestion();
+    }
+
+    private void showCurrentQuizQuestion(){
+        String q="";
+        switch(quizQuestion){
+            case 1: q="1) pwd kya dikhata hai?\nA) current directory  B) password  C) process\n"; break;
+            case 2: q="2) ls ka use?\nA) files list  B) login  C) network scan\n"; break;
+            case 3: q="3) mkdir kya banata hai?\nA) file  B) directory  C) user\n"; break;
+            case 4: q="4) Nmap ka safe beginner use?\nA) localhost/lab scan  B) random targets  C) password theft\n"; break;
+            case 5: q="5) SHA-256 kis kaam me useful?\nA) integrity hash  B) video edit  C) Wi-Fi password\n"; break;
+        }
+        append(q);
+    }
+
+    private void checkQuizAnswer(String[] parts){
+        if(quizQuestion<1 || quizQuestion>5){
+            append("Quiz active nahi hai. Start with: quiz\n");
+            return;
+        }
+        if(parts.length<2){
+            append("Usage: answer A\n");
+            return;
+        }
+        String a=parts[1].toUpperCase(Locale.ROOT);
+        String correct = quizQuestion==3 ? "B" : "A";
+        if(a.equals(correct)){
+            quizCurrentScore++;
+            appendGreen("✓ Correct!\n");
+        }else{
+            appendRed("✗ Incorrect. Correct answer: "+correct+"\n");
+        }
+        quizQuestion++;
+        if(quizQuestion>5){
+            appendYellow("\nQUIZ COMPLETE\n");
+            append("Score: "+quizCurrentScore+"/5\n");
+            if(quizCurrentScore>quizScore){
+                quizScore=quizCurrentScore;
+                prefs.edit().putInt("quizScore",quizScore).apply();
+                appendGreen("New best score saved!\n");
+            }
+            append(quizCurrentScore>=4 ? "Excellent. Fundamentals strong ho rahe hain.\n" :
+                    quizCurrentScore>=3 ? "Good. Weak topics ko lessons se revise karo.\n" :
+                            "Lessons 1-10 revise karo, phir quiz dubara try karo.\n");
+            quizQuestion=0;
+        }else{
+            showCurrentQuizQuestion();
+        }
+    }
+
+    private void showCheatSheet(){
+        appendYellow("QUICK CHEAT SHEET\n");
+        append("pwd              current directory\n");
+        append("ls               files/folders list\n");
+        append("cd DIR           directory change\n");
+        append("mkdir DIR        folder create\n");
+        append("touch FILE       file create\n");
+        append("cat FILE         file read\n");
+        append("echo TEXT > F    file write\n");
+        append("whoami           current user\n");
+        append("ip addr          network interfaces\n");
+        append("ip route         routing table\n");
+        append("ping HOST        connectivity test\n");
+        append("nmap TARGET      safe training scan\n");
+        append("lessons          course list\n");
+        append("next             next lesson\n");
+        append("progress         course progress\n");
+        append("quiz             start quiz\n");
+        append("challenge        practical challenge\n");
+    }
+
+    private void showBadges(){
+        appendYellow("LEARNING BADGES\n");
+        append((completedLessons>=1 ? "✓" : "○")+" First Step — lesson 1 complete\n");
+        append((completedLessons>=5 ? "✓" : "○")+" Linux Rookie — 5 lessons\n");
+        append((completedLessons>=10 ? "✓" : "○")+" Terminal Learner — 10 lessons\n");
+        append((completedLessons>=20 ? "✓" : "○")+" Course Finisher — 20 lessons\n");
+        append((quizScore>=3 ? "✓" : "○")+" Quiz Pass — score 3/5\n");
+        append((quizScore==5 ? "✓" : "○")+" Perfect Score — 5/5\n");
     }
 
     private void showChallenge(){
