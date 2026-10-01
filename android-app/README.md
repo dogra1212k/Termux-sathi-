@@ -34,3 +34,5 @@ app/build/outputs/apk/debug/app-debug.apk
 ## Build verification branch
 
 This line exists only to trigger a pull-request Android build check.
+
+Second build verification trigger after Android SDK workflow fix.
