@@ -15,6 +15,7 @@ Android पर Termux और Kali NetHunter Rootless सीखने के ल�
 7. Bash Scripting Basics
 8. Python Basics
 9. Git & GitHub Basics
+10. Linux Networking Practical & Troubleshooting
 
 ---
 
@@ -1099,22 +1100,526 @@ Ab aap Git/GitHub ke basic workflow ko samajhte ho:
 clone → branch → edit → status → add → commit → pull/fetch → push
 ```
 
+# Part 10 — Linux Networking Practical & Troubleshooting
+
+Networking ko samajhne ka best tareeka hai pehle apne device aur apne lab ko samajhna. Random public systems par commands chalana learning nahi, headache manufacturing hai.
+
+## 1. Localhost Kya Hai?
+
+Localhost aapke khud ke device ko refer karta hai.
+
+Common address:
+
+```text
+127.0.0.1
+```
+
+IPv6 localhost:
+
+```text
+::1
+```
+
+Check:
+
+```bash
+ping -c 4 127.0.0.1
+```
+
+Agar response milta hai, local networking stack basic level par kaam kar raha hai.
+
+## 2. IP Address Check
+
+```bash
+ip addr
+```
+
+Short form:
+
+```bash
+ip a
+```
+
+Useful interfaces Android/Termux/Kali environment ke hisaab se alag ho sakte hain.
+
+Common names:
+
+```text
+lo
+wlan0
+eth0
+```
+
+Rootless/proot environment me kuch interfaces hidden ya limited ho sakte hain.
+
+## 3. Route Check
+
+```bash
+ip route
+```
+
+Ye batata hai traffic kis route se bahar ja raha hai.
+
+Typical line:
+
+```text
+default via 192.168.1.1 dev wlan0
+```
+
+Exact output network ke hisaab se alag hoga.
+
+## 4. Hostname Check
+
+```bash
+hostname
+```
+
+Detailed host info ke liye:
+
+```bash
+uname -a
+```
+
+## 5. Internet Connectivity Test
+
+Public IP ke saath:
+
+```bash
+ping -c 4 1.1.1.1
+```
+
+Domain ke saath:
+
+```bash
+ping -c 4 example.com
+```
+
+Interpretation:
+
+- IP ping works, domain ping fails → DNS issue ho sakta hai
+- Dono fail → connectivity, routing ya ICMP blocking ho sakti hai
+- Ping fail hone ka matlab hamesha internet down nahi hota
+
+## 6. DNS Basics
+
+DNS domain name ko IP address me resolve karta hai.
+
+Example:
+
+```text
+example.com → IP address
+```
+
+Tools install:
+
+Kali:
+
+```bash
+sudo apt install dnsutils -y
+```
+
+Termux:
+
+```bash
+pkg install dnsutils
+```
+
+Lookup:
+
+```bash
+nslookup example.com
+```
+
+Ya:
+
+```bash
+dig example.com
+```
+
+Short result:
+
+```bash
+dig +short example.com
+```
+
+## 7. curl se HTTP Check
+
+Install:
+
+```bash
+sudo apt install curl -y
+```
+
+Headers:
+
+```bash
+curl -I https://example.com
+```
+
+Verbose connection details:
+
+```bash
+curl -v https://example.com
+```
+
+> `-v` output me request/connection details dikh sakti hain. Tokens/cookies wali private URLs ko screenshot ya public log me share mat karo.
+
+## 8. HTTP Status Samjho
+
+Common status codes:
+
+```text
+200 = OK
+301 = Redirect
+302 = Temporary Redirect
+403 = Forbidden
+404 = Not Found
+500 = Server Error
+503 = Service Unavailable
+```
+
+Sirf status code:
+
+```bash
+curl -o /dev/null -s -w "%{http_code}\n" https://example.com
+```
+
+## 9. wget se Download Test
+
+```bash
+wget https://example.com
+```
+
+Custom filename:
+
+```bash
+wget -O example.html https://example.com
+```
+
+Check:
+
+```bash
+ls -lh example.html
+```
+
+## 10. Listening Ports Dekhna
+
+Kali:
+
+```bash
+ss -tuln
+```
+
+Meaning:
+
+```text
+t = TCP
+u = UDP
+l = listening
+n = numeric addresses/ports
+```
+
+Processes ke saath:
+
+```bash
+ss -tulnp
+```
+
+Rootless environment me process info incomplete ho sakti hai.
+
+## 11. Active Connections
+
+```bash
+ss -tun
+```
+
+Ye active TCP/UDP connections dikhata hai.
+
+## 12. Safe Local HTTP Server
+
+Practice folder:
+
+```bash
+mkdir -p ~/network-lab
+cd ~/network-lab
+```
+
+File banao:
+
+```bash
+echo "Hello from Termux-Sathi local server" > index.html
+```
+
+Server start:
+
+```bash
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Ab same device par doosre terminal/session me:
+
+```bash
+curl http://127.0.0.1:8000
+```
+
+Expected:
+
+```text
+Hello from Termux-Sathi local server
+```
+
+Server stop:
+
+```text
+Ctrl + C
+```
+
+> `127.0.0.1` bind karne se server sirf local device par available rahega. Beginner practice ke liye ye safer default hai.
+
+## 13. Port Check with ss
+
+Server run karte waqt:
+
+```bash
+ss -tuln | grep 8000
+```
+
+Aapko port 8000 listening state me dikh sakta hai.
+
+## 14. Local Server Header Check
+
+```bash
+curl -I http://127.0.0.1:8000
+```
+
+## 15. DNS Troubleshooting Flow
+
+Step 1:
+
+```bash
+ping -c 4 1.1.1.1
+```
+
+Step 2:
+
+```bash
+ping -c 4 example.com
+```
+
+Step 3:
+
+```bash
+nslookup example.com
+```
+
+Step 4:
+
+```bash
+curl -I https://example.com
+```
+
+Is order se problem ko layer-by-layer samajhna easy hota hai.
+
+## 16. Route Troubleshooting
+
+```bash
+ip route
+```
+
+Agar default route hi missing ho, internet traffic normal tareeke se bahar nahi jayega.
+
+## 17. Interface Troubleshooting
+
+```bash
+ip addr
+```
+
+Check karo:
+
+- interface UP hai ya nahi
+- IP assigned hai ya nahi
+- loopback available hai ya nahi
+
+## 18. Port Concept
+
+Network service usually ek port par listen karti hai.
+
+Common examples:
+
+```text
+22   = SSH
+53   = DNS
+80   = HTTP
+443  = HTTPS
+8000 = Common local dev/testing port
+```
+
+Port number service ko identify karne me help karta hai.
+
+## 19. localhost vs LAN IP
+
+Localhost:
+
+```text
+127.0.0.1
+```
+
+Sirf current device.
+
+LAN IP example:
+
+```text
+192.168.x.x
+10.x.x.x
+```
+
+Ye local network me device ko identify kar sakta hai.
+
+> LAN IP par server expose karne se pehle samjho ki network ke doosre devices usse access kar sakte hain. Beginner practice me localhost better hai.
+
+## 20. Common Network Errors
+
+### Could not resolve host
+
+Example:
+
+```text
+Could not resolve host
+```
+
+Possible cause:
+
+- DNS problem
+- typo in domain
+- no network
+
+Check:
+
+```bash
+nslookup example.com
+```
+
+### Connection refused
+
+```text
+Connection refused
+```
+
+Possible cause:
+
+- service running nahi
+- wrong port
+- service localhost ya kisi aur interface par bound hai
+
+Check:
+
+```bash
+ss -tuln
+```
+
+### Connection timed out
+
+Possible cause:
+
+- route issue
+- firewall
+- remote service unavailable
+- network filtering
+
+### 403 Forbidden
+
+Server ne request receive ki, lekin access deny kiya.
+
+Possible causes:
+
+- authentication required
+- permission policy
+- blocked client/request
+- protected resource
+
+403 ko blindly “internet problem” mat samjho.
+
+## 21. Useful Networking Commands
+
+```text
+ip addr        = interfaces/IPs
+ip route       = routes/default gateway
+hostname       = host name
+ping           = reachability test
+nslookup       = DNS lookup
+dig            = DNS query
+curl           = HTTP/HTTPS testing
+wget           = download
+ss             = sockets/ports
+```
+
+## 🧪 Full Networking Practical
+
+```bash
+cd ~
+mkdir -p network-lab
+cd network-lab
+
+echo "Termux-Sathi Network Lab" > index.html
+
+ip addr
+ip route
+ping -c 4 127.0.0.1
+ping -c 4 1.1.1.1
+nslookup example.com
+curl -I https://example.com
+```
+
+Local server:
+
+```bash
+python3 -m http.server 8000 --bind 127.0.0.1
+```
+
+Doosre terminal/session me:
+
+```bash
+curl http://127.0.0.1:8000
+ss -tuln | grep 8000
+```
+
+## 🎯 Practice Challenge
+
+1. Localhost ping karo.
+2. Apna IP/interface dekho.
+3. Default route identify karo.
+4. Public IP ping test karo.
+5. Domain resolve karo.
+6. HTTPS headers check karo.
+7. Local `index.html` banao.
+8. Python local server port 8000 par chalao.
+9. `curl` se page open karo.
+10. `ss` se listening port verify karo.
+
+---
+
+## ✅ Part 10 Complete
+
+Ab aap networking ka basic troubleshooting flow samajhte ho:
+
+```text
+interface → route → IP connectivity → DNS → HTTP/service → port
+```
+
 ## 🚀 Next
 
-**Part 10 — Linux Networking Practical & Troubleshooting**
+**Part 11 — Linux Users, Environment Variables & Shell Customization**
 
 Topics:
-- localhost aur IP basics
-- DNS basics
-- ip addr / ip route
-- ping
-- curl
-- wget
-- ss
-- DNS lookup
-- ports ka concept
-- safe local HTTP server
-- common network errors
+- env
+- printenv
+- PATH
+- export
+- aliases
+- .bashrc
+- command history settings
+- shell prompt basics
+- safe persistent customization
 
 ---
 
