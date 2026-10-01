@@ -123,8 +123,9 @@ public class MainActivity extends Activity {
                 "git clone github.com/dogra1212k/Termux-sathi-.git\n" +
                 "cd Termux-sathi- && ./setup.sh\n" +
                 "./termux-sathi.sh",
-                13, Color.rgb(210, 255, 225), Typeface.MONOSPACE
+                13, Color.rgb(210, 255, 225), Typeface.NORMAL
         );
+        code.setTypeface(Typeface.MONOSPACE);
         code.setPadding(dp(14), dp(12), dp(14), dp(12));
         code.setBackground(round(Color.rgb(8, 18, 14), 12));
         box.addView(code, match());
