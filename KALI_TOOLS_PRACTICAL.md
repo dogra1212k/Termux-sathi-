@@ -1,3 +1,5 @@
+> 📚 **Navigation:** [Master Index](KALI_MASTER_INDEX.md) · [Complete Guide](KALI_TOOLS_GUIDE.md) · [Practical Guide](KALI_TOOLS_PRACTICAL.md) · [Quick Reference](KALI_QUICK_REFERENCE.md) · [Rootless Guide](NETHUNTER_ROOTLESS_GUIDE.md) · [Safe Labs](SAFE_LABS.md)
+
 # 🧪 Kali Linux Tools — Step-by-Step Practical Guide
 
 Ye practical guide **apne device, localhost, lab, CTF ya explicit permission wale system** ke liye hai.
