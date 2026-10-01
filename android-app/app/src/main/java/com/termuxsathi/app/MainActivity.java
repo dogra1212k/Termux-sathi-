@@ -49,6 +49,7 @@ public class MainActivity extends Activity {
     private int quizScore = 0;
     private int quizQuestion = 0;
     private int quizCurrentScore = 0;
+    private String lastCommand = "help";
 
     private final String[] lessonTitles = {
             "Linux Terminal Basics","pwd, ls aur cd","mkdir, touch aur files",
@@ -120,7 +121,7 @@ public class MainActivity extends Activity {
         names.addView(label("Termux-Sathi Learning Terminal",18,TEXT,Typeface.BOLD));
         names.addView(label("Offline • Self-contained • Safe Practice",11,GREEN,Typeface.BOLD));
         top.addView(names,new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f));
-        top.addView(label("v2.0",11,CYAN,Typeface.BOLD));
+        top.addView(label("v2.1",11,CYAN,Typeface.BOLD));
         box.addView(top);
 
         TextView hint = label("Commands, lessons aur labs isi app ke andar chalenge.",12,MUTED,Typeface.NORMAL);
@@ -130,13 +131,26 @@ public class MainActivity extends Activity {
     }
 
     private View buildQuickBar() {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.addView(chip("HELP",v->runCommand("help")),weight(1));
-        row.addView(chip("LESSONS",v->runCommand("lessons")),weight(1));
-        row.addView(chip("TOOLS",v->runCommand("kali-tools")),weight(1));
-        row.addView(chip("CLEAR",v->runCommand("clear")),weight(1));
-        return row;
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout row1 = new LinearLayout(this);
+        row1.setOrientation(LinearLayout.HORIZONTAL);
+        row1.addView(chip("HELP",v->runCommand("help")),weight(1));
+        row1.addView(chip("LESSONS",v->runCommand("lessons")),weight(1));
+        row1.addView(chip("TOOLS",v->runCommand("kali-tools")),weight(1));
+        row1.addView(chip("CLEAR",v->runCommand("clear")),weight(1));
+        box.addView(row1);
+
+        box.addView(space(7));
+
+        LinearLayout row2 = new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        row2.addView(chip("📖 EXPLAIN",v->runCommand("explain")),weight(1));
+        row2.addView(chip("🐉 KALI GUIDE",v->runCommand("guide")),weight(1));
+        box.addView(row2);
+
+        return box;
     }
 
     private View buildInputRow() {
@@ -185,12 +199,13 @@ public class MainActivity extends Activity {
 
     private void bootScreen(){
         terminal.setText("");
-        appendGreen("TERMUX-SATHI LEARNING TERMINAL v2.0\n");
+        appendGreen("TERMUX-SATHI LEARNING TERMINAL v2.1\n");
         append("Safe training shell ready. External app ki zarurat nahi.\n\n");
         appendYellow("Start: "); append("help\n");
         appendYellow("Course: "); append("lessons   |   lesson 1   |   next   |   progress\n");
         appendYellow("Practice: "); append("practice linux   |   practice network\n");
-        appendYellow("Tools: "); append("kali-tools   |   tool nmap\n");
+        appendYellow("Tools: "); append("kali-tools   |   guide   |   tool nmap\n");
+        appendYellow("Explain: "); append("explain   (last command ko subject-wise samjho)\n");
         appendYellow("Test: "); append("quiz   |   challenge   |   cheatsheet   |   badges\n\n");
         append("Filesystem commands app ke private sandbox me real files par kaam karte hain.\n");
         appendPrompt();
@@ -204,6 +219,7 @@ public class MainActivity extends Activity {
 
         String[] parts=cmd.split("\\s+");
         String base=parts[0].toLowerCase(Locale.ROOT);
+        if(!base.equals("explain") && !base.equals("why")) lastCommand = cmd;
 
         try{
             switch(base){
@@ -220,6 +236,9 @@ public class MainActivity extends Activity {
                 case "lesson": showLesson(parts); break;
                 case "practice": showPractice(parts); break;
                 case "kali-tools": showKaliTools(); break;
+                case "guide": showKaliGuideScreen(); break;
+                case "explain":
+                case "why": showExplainScreen(lastCommand); break;
                 case "tool": showTool(parts); break;
                 case "pwd": append(pathOf(currentDir)+"\n"); break;
                 case "ls": listFiles(); break;
@@ -258,7 +277,7 @@ public class MainActivity extends Activity {
 
     private void showHelp(){
         appendYellow("SUPPORTED COMMANDS\n");
-        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  answer A|B|C\n  challenge\n  cheatsheet\n  badges\n  practice linux\n  practice network\n  kali-tools\n  tool NAME\n\n");
+        append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  answer A|B|C\n  challenge\n  cheatsheet\n  badges\n  practice linux\n  practice network\n  kali-tools\n  guide\n  explain\n  tool NAME\n\n");
         append("Filesystem:\n  pwd  ls  cd  mkdir  touch  cat  echo  rm\n\n");
         append("System/training:\n  whoami  uname  date  history  clear  reset\n");
         append("  ip addr  ip route  ping HOST  nmap TARGET\n");
@@ -456,6 +475,154 @@ public class MainActivity extends Activity {
         }else appendRed("Unknown practice topic.\n");
     }
 
+    private void showExplainScreen(String command){
+        terminal.setText("");
+        appendGreen("📖 WHAT'S RUNNING?\n");
+        append("────────────────────────────────\n");
+        appendYellow("Command\n");
+        append("  "+command+"\n\n");
+
+        String[] p = command.trim().split("\\s+");
+        String base = p.length>0 ? p[0].toLowerCase(Locale.ROOT) : "";
+
+        appendYellow("1) Yeh kya hai?\n");
+        append(explainPurpose(base)+"\n\n");
+
+        appendYellow("2) Is command ka kaam\n");
+        append(explainWork(base, command)+"\n\n");
+
+        appendYellow("3) Output ko kaise samjhein\n");
+        append(explainOutput(base)+"\n\n");
+
+        appendYellow("4) Safe practical example\n");
+        append(explainExample(base)+"\n\n");
+
+        appendYellow("5) Yaad rakhne wali baat\n");
+        append(explainTip(base)+"\n\n");
+
+        appendGreen("Terminal par wapas jaane ke liye koi bhi command type karo.\n");
+    }
+
+    private String explainPurpose(String base){
+        switch(base){
+            case "pwd": return "pwd = print working directory. Yeh batata hai ki tum abhi kis folder ke andar ho.";
+            case "ls": return "ls current folder ke files aur folders ki list dikhata hai.";
+            case "cd": return "cd directory change karta hai. Matlab terminal ko doosre folder me le jata hai.";
+            case "mkdir": return "mkdir naya folder banata hai.";
+            case "touch": return "touch nayi empty file banata hai ya existing file ka timestamp update karta hai.";
+            case "cat": return "cat text file ka content terminal me dikhata hai.";
+            case "echo": return "echo text ko screen par dikhata hai ya > / >> ke saath file me likh sakta hai.";
+            case "ip": return "ip Linux networking command family hai. Interfaces aur routes samajhne me use hoti hai.";
+            case "ping": return "ping connectivity test ka basic tool hai. Yeh check karta hai ki target reachable hai ya nahi.";
+            case "nmap": return "Nmap network discovery aur port/service assessment tool hai. Is app me sirf safe simulation hoti hai.";
+            case "apt":
+            case "pkg": return "Package manager command software packages ko update/install/manage karne ke liye hoti hai.";
+            case "git": return "Git files aur code ki version history manage karta hai.";
+            case "tool": return "tool command kisi Kali tool ki learning card kholta hai.";
+            case "lesson": return "lesson command structured topic ko step-by-step samjhata hai.";
+            default: return "Yeh Termux-Sathi learning command hai. Iska purpose command ko practice ke saath samajhna hai.";
+        }
+    }
+
+    private String explainWork(String base, String command){
+        switch(base){
+            case "pwd": return "App ke private learning sandbox ka current path read karke print karta hai.";
+            case "ls": return "Current directory ki entries read karke directory/file ke roop me list karta hai.";
+            case "cd": return "Requested folder ko validate karta hai aur sandbox ke andar hi current location badalta hai.";
+            case "mkdir": return "Sandbox ke andar requested naam ka directory create karta hai.";
+            case "touch": return "Sandbox path verify karke file create karta hai.";
+            case "cat": return "Requested file ko read-only mode me kholkar line-by-line dikhata hai.";
+            case "echo": return "Text ko parse karke output ya sandbox file me write/append karta hai.";
+            case "ip": return "Training network information dikhata hai. Real Android network settings change nahi hoti.";
+            case "ping": return "Connectivity output simulate karta hai. Real packets send nahi karta.";
+            case "nmap": return "Training scan output simulate karta hai. Real target scan nahi hota.";
+            case "apt":
+            case "pkg": return "Package installation ka learning flow simulate karta hai. APK ke andar real Kali package install nahi hota.";
+            case "git": return "Basic Git status/init/log behavior ko training mode me demonstrate karta hai.";
+            default: return "Command: "+command+" ko learning shell ke rules ke hisaab se process kiya gaya.";
+        }
+    }
+
+    private String explainOutput(String base){
+        switch(base){
+            case "pwd": return "~/ ka matlab app ka private home sandbox hai.";
+            case "ls": return "[DIR] folder ko dikhata hai. Bina [DIR] wali entry file hai.";
+            case "ip": return "lo = loopback. wlan0 = example wireless interface. CIDR jaise /24 network size batata hai.";
+            case "ping": return "bytes reply size, time latency, transmitted/received packet result dikhate hain.";
+            case "nmap": return "PORT service endpoint hai, STATE open/closed status, SERVICE expected protocol/service name.";
+            case "apt":
+            case "pkg": return "Resolving dependency check ko, Installing package setup ko represent karta hai.";
+            case "git": return "branch current development line hai; working tree clean matlab pending changes nahi.";
+            default: return "Output ki har line command ke result ko dikhati hai. Error aaye to command spelling aur required argument check karo.";
+        }
+    }
+
+    private String explainExample(String base){
+        switch(base){
+            case "pwd": return "Try: pwd";
+            case "ls": return "Try: mkdir demo  →  ls";
+            case "cd": return "Try: mkdir demo  →  cd demo  →  pwd  →  cd ..";
+            case "mkdir": return "Try: mkdir practice  →  ls";
+            case "touch": return "Try: touch notes.txt  →  ls";
+            case "cat": return "Try: echo Hello > notes.txt  →  cat notes.txt";
+            case "echo": return "Try: echo Linux practice > notes.txt";
+            case "ip": return "Try: ip addr   aur   ip route";
+            case "ping": return "Try: ping 127.0.0.1";
+            case "nmap": return "Try: nmap 127.0.0.1   (simulation only)";
+            case "git": return "Try: git status";
+            default: return "Try: help   ya   lessons";
+        }
+    }
+
+    private String explainTip(String base){
+        if(base.equals("nmap") || base.equals("ping"))
+            return "Network tools ko apne localhost, apne lab, CTF ya authorized system par hi practice karo.";
+        if(base.equals("rm")) return "Delete command ko hamesha path dekh kar use karo. App directory removal ko block karta hai.";
+        return "Command ko ratne se zyada useful hai: purpose samjho, ek example chalao, output padho.";
+    }
+
+    private void showKaliGuideScreen(){
+        terminal.setText("");
+        appendGreen("🐉 KALI TOOLS GUIDE\n");
+        append("Step-by-step learning library\n");
+        append("────────────────────────────────\n\n");
+
+        appendYellow("1. Information Gathering\n");
+        append("   nmap • whois • dig • dnsrecon • whatweb\n");
+        append("   Kaam: target/lab ke exposed information ko samajhna.\n\n");
+
+        appendYellow("2. Web Security Learning\n");
+        append("   burpsuite • nikto • gobuster • sqlmap\n");
+        append("   Kaam: apne training web app me requests, paths aur vulnerabilities samajhna.\n\n");
+
+        appendYellow("3. Password Auditing\n");
+        append("   john • hashcat • hydra\n");
+        append("   Kaam: apne test hashes/accounts ki password strength audit karna.\n\n");
+
+        appendYellow("4. Packet / Network Analysis\n");
+        append("   wireshark • tshark • tcpdump\n");
+        append("   Kaam: traffic aur PCAP files ko inspect karna.\n\n");
+
+        appendYellow("5. Wireless Concepts\n");
+        append("   aircrack-ng • kismet\n");
+        append("   Kaam: wireless security concepts. Android/root/kernel limitations apply.\n\n");
+
+        appendYellow("6. Forensics\n");
+        append("   yara • exiftool • foremost • autopsy\n");
+        append("   Kaam: files, metadata aur evidence analysis.\n\n");
+
+        appendYellow("7. Reverse Engineering\n");
+        append("   gdb • radare2 • rizin • ghidra • jadx\n");
+        append("   Kaam: binaries/apps ka structure aur behavior samajhna.\n\n");
+
+        appendYellow("8. System / Defensive Audit\n");
+        append("   lynis • clamav\n");
+        append("   Kaam: system configuration aur defensive checks.\n\n");
+
+        appendGreen("Tool kholne ka format: tool nmap\n");
+        append("Har tool card me purpose, safe use aur practical direction milegi.\n");
+    }
+
     private void showKaliTools(){
         appendYellow("KALI TOOL CATEGORIES\n");
         append("Information Gathering: nmap, whois, dig\n");
@@ -474,8 +641,14 @@ public class MainActivity extends Activity {
         String t=parts[1].toLowerCase(Locale.ROOT);
         switch(t){
             case "nmap":
-                appendYellow("NMAP\n");
-                append("Purpose: hosts/ports/services discover karna.\nSafe demo: nmap 127.0.0.1\nOnly localhost/lab/authorized systems.\n");
+                appendYellow("NMAP — SUBJECTIVE GUIDE\n");
+                append("Purpose: hosts, ports aur services discover/assess karna.\n");
+                append("Basic syntax: nmap TARGET\n");
+                append("Safe practical: nmap 127.0.0.1\n");
+                append("Output: PORT = endpoint, STATE = open/closed, SERVICE = detected service.\n");
+                append("App behavior: real scan nahi hota; educational simulation hoti hai.\n");
+                append("Rule: localhost, apna lab, CTF ya authorized systems only.\n");
+                append("Next step: nmap 127.0.0.1  →  explain\n");
                 break;
             case "wireshark":
             case "tshark":
