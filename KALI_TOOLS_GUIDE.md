@@ -4214,3 +4214,746 @@ shellcheck
 yamllint
 jsonlint
 ```
+
+
+---
+
+# 🧰 Complete Utilities Pack
+
+Ye section remaining common developer, file, archive, crypto, transfer, parsing aur quality-check tools ko ek saath cover karta hai.
+
+## Build Tools
+
+Install:
+
+```bash
+sudo apt install build-essential make gcc g++ cmake pkg-config -y
+```
+
+Checks:
+
+```bash
+gcc --version
+g++ --version
+make --version
+cmake --version
+pkg-config --version
+```
+
+Simple C program:
+
+```bash
+cat > hello.c <<'EOF'
+#include <stdio.h>
+int main() {
+    puts("Hello Termux-Sathi");
+    return 0;
+}
+EOF
+
+gcc hello.c -o hello
+./hello
+```
+
+Simple C++:
+
+```bash
+cat > hello.cpp <<'EOF'
+#include <iostream>
+int main() {
+    std::cout << "Hello C++" << std::endl;
+    return 0;
+}
+EOF
+
+g++ hello.cpp -o hello-cpp
+./hello-cpp
+```
+
+---
+
+## Python pip / pipx
+
+Install:
+
+```bash
+sudo apt install python3-pip python3-venv pipx -y
+```
+
+Checks:
+
+```bash
+python3 --version
+pip3 --version
+pipx --version
+```
+
+Virtual environment:
+
+```bash
+python3 -m venv ~/venvs/lab
+source ~/venvs/lab/bin/activate
+python -m pip install --upgrade pip
+deactivate
+```
+
+pipx apps:
+
+```bash
+pipx list
+pipx ensurepath
+```
+
+System Python ko random `sudo pip install` se modify karne ke bajay venv/pipx use karna safer hai.
+
+---
+
+## Node.js / npm
+
+Install:
+
+```bash
+sudo apt install nodejs npm -y
+```
+
+Check:
+
+```bash
+node --version
+npm --version
+```
+
+Test:
+
+```bash
+node -e 'console.log("Termux-Sathi Node")'
+```
+
+---
+
+## Go
+
+Install:
+
+```bash
+sudo apt install golang-go -y
+```
+
+Check:
+
+```bash
+go version
+```
+
+Test:
+
+```bash
+cat > hello.go <<'EOF'
+package main
+import "fmt"
+func main() {
+    fmt.Println("Hello Go")
+}
+EOF
+
+go run hello.go
+```
+
+---
+
+## Ruby
+
+Install:
+
+```bash
+sudo apt install ruby-full -y
+```
+
+Check:
+
+```bash
+ruby --version
+gem --version
+```
+
+Test:
+
+```bash
+ruby -e 'puts "Hello Ruby"'
+```
+
+---
+
+## Perl
+
+Install:
+
+```bash
+sudo apt install perl -y
+```
+
+Check:
+
+```bash
+perl --version
+```
+
+Test:
+
+```bash
+perl -e 'print "Hello Perl\n";'
+```
+
+---
+
+# Archive & Compression Tools
+
+## ZIP / unzip
+
+```bash
+sudo apt install zip unzip -y
+zip archive.zip file.txt
+unzip -l archive.zip
+unzip archive.zip -d restored
+```
+
+## 7-Zip
+
+```bash
+sudo apt install p7zip-full -y
+7z a archive.7z file.txt
+7z l archive.7z
+7z x archive.7z
+```
+
+## xz
+
+```bash
+sudo apt install xz-utils -y
+xz -k file.txt
+xz -l file.txt.xz
+unxz -k file.txt.xz
+```
+
+## zstd
+
+```bash
+sudo apt install zstd -y
+zstd file.txt
+unzstd file.txt.zst
+```
+
+---
+
+# Binary Inspection Utilities
+
+Install:
+
+```bash
+sudo apt install binutils xxd -y
+```
+
+## hexdump
+
+```bash
+hexdump -C /bin/ls | head
+```
+
+## xxd
+
+```bash
+xxd /bin/ls | head
+```
+
+## objdump
+
+```bash
+objdump -f /bin/ls
+objdump -h /bin/ls
+```
+
+## readelf
+
+```bash
+readelf -h /bin/ls
+readelf -S /bin/ls | head
+```
+
+## nm
+
+```bash
+nm ./hello 2>/dev/null | head
+```
+
+## strings advanced
+
+```bash
+strings -n 8 /bin/ls | head
+```
+
+---
+
+# Crypto / Signing Tools
+
+## GPG
+
+Install:
+
+```bash
+sudo apt install gnupg -y
+```
+
+Version:
+
+```bash
+gpg --version
+```
+
+Hash:
+
+```bash
+gpg --print-md SHA256 file.txt
+```
+
+Key list:
+
+```bash
+gpg --list-keys
+```
+
+## age
+
+Install:
+
+```bash
+sudo apt install age -y
+```
+
+Version:
+
+```bash
+age --version
+```
+
+Generate key:
+
+```bash
+age-keygen -o age-key.txt
+```
+
+> Private keys ko public repo/chat me paste mat karo.
+
+---
+
+# File Transfer Tools
+
+## SCP
+
+Own/authorized server:
+
+```bash
+scp file.txt username@SERVER_IP:/tmp/
+```
+
+Download:
+
+```bash
+scp username@SERVER_IP:/tmp/file.txt .
+```
+
+## SFTP
+
+```bash
+sftp username@SERVER_IP
+```
+
+Inside:
+
+```text
+pwd
+ls
+put file.txt
+get remote.txt
+exit
+```
+
+## rsync over SSH
+
+Dry run:
+
+```bash
+rsync -av --dry-run -e ssh ~/data/ username@SERVER_IP:/backup/
+```
+
+Real sync:
+
+```bash
+rsync -av -e ssh ~/data/ username@SERVER_IP:/backup/
+```
+
+---
+
+# Download Utilities
+
+## aria2
+
+Install:
+
+```bash
+sudo apt install aria2 -y
+```
+
+Check:
+
+```bash
+aria2c --version
+```
+
+HTTP download:
+
+```bash
+aria2c https://example.com
+```
+
+---
+
+# Parallel Command Utility
+
+Install:
+
+```bash
+sudo apt install parallel -y
+```
+
+Check:
+
+```bash
+parallel --version
+```
+
+Safe practice:
+
+```bash
+printf "one\ntwo\nthree\n" | parallel echo Item:
+```
+
+---
+
+# Shell Quality Tools
+
+## ShellCheck
+
+Install:
+
+```bash
+sudo apt install shellcheck -y
+```
+
+Check:
+
+```bash
+shellcheck --version
+```
+
+Lint script:
+
+```bash
+shellcheck ~/system-check.sh
+```
+
+---
+
+# YAML / JSON Validation
+
+## yamllint
+
+Install:
+
+```bash
+sudo apt install yamllint -y
+```
+
+Sample:
+
+```bash
+cat > sample.yaml <<'EOF'
+name: Termux-Sathi
+active: true
+EOF
+
+yamllint sample.yaml
+```
+
+## JSON validation with jq
+
+```bash
+echo '{"name":"Termux-Sathi"}' > sample.json
+jq empty sample.json && echo "Valid JSON"
+```
+
+---
+
+# Useful Text/Data Tools
+
+Install:
+
+```bash
+sudo apt install sed gawk grep coreutils findutils -y
+```
+
+Examples:
+
+```bash
+sed 's/Termux/Kali/' file.txt
+awk '{print $1}' file.txt
+grep -n "text" file.txt
+find . -type f -name "*.txt"
+```
+
+---
+
+# HTTP / API Utilities
+
+Install:
+
+```bash
+sudo apt install curl httpie -y
+```
+
+Check:
+
+```bash
+http --version
+```
+
+Local API style request:
+
+```bash
+http GET http://127.0.0.1:8000
+```
+
+---
+
+# Terminal Editors
+
+## nano
+
+```bash
+sudo apt install nano -y
+nano notes.txt
+```
+
+## vim
+
+```bash
+sudo apt install vim -y
+vim notes.txt
+```
+
+---
+
+# File Managers
+
+## ranger
+
+```bash
+sudo apt install ranger -y
+ranger
+```
+
+## mc
+
+```bash
+sudo apt install mc -y
+mc
+```
+
+---
+
+# Process & Service Utilities
+
+Install:
+
+```bash
+sudo apt install procps psmisc -y
+```
+
+Commands:
+
+```bash
+ps aux
+pgrep bash
+pstree
+kill PID
+pkill PROCESS_NAME
+```
+
+Use `kill -9` only as last resort.
+
+---
+
+# Networking Convenience Pack
+
+Install:
+
+```bash
+sudo apt install iproute2 iputils-ping net-tools dnsutils traceroute mtr-tiny curl wget whois -y
+```
+
+Useful:
+
+```bash
+ip addr
+ip route
+ss -tuln
+ping -c 4 1.1.1.1
+dig example.com
+host example.com
+traceroute example.com
+mtr -rw example.com
+```
+
+---
+
+# Forensics Convenience Pack
+
+Install:
+
+```bash
+sudo apt install sleuthkit foremost yara binwalk libimage-exiftool-perl gddrescue -y
+```
+
+Safe checks:
+
+```bash
+file sample.bin
+strings sample.bin | head
+sha256sum sample.bin
+exiftool sample.bin
+binwalk sample.bin
+```
+
+---
+
+# Reverse Engineering Convenience Pack
+
+Install:
+
+```bash
+sudo apt install gdb radare2 rizin apktool jadx binutils -y
+```
+
+Checks:
+
+```bash
+gdb --version
+r2 -v
+rizin -v
+apktool --version
+jadx --version
+```
+
+---
+
+# Web Testing Convenience Pack
+
+Install:
+
+```bash
+sudo apt install burpsuite zaproxy gobuster wfuzz whatweb nikto sqlmap -y
+```
+
+Safe localhost commands:
+
+```bash
+whatweb http://127.0.0.1:8000
+nikto -h http://127.0.0.1:8000
+```
+
+Automated testing ko localhost/CTF/authorized application tak rakho.
+
+---
+
+# Kali Security Tool Help Pack
+
+High-risk tools ke liye beginner guide me safe help/version commands:
+
+```bash
+nmap --help
+sqlmap --help
+hydra -h
+john --help
+hashcat --help
+aircrack-ng --help
+msfconsole
+```
+
+Metasploit console me:
+
+```text
+help
+version
+exit
+```
+
+Exploit, credential attacks, interception, spoofing aur destructive workflows sirf authorized isolated labs ke context me hi practice honi chahiye.
+
+---
+
+# ✅ Complete Utilities Pack Challenge
+
+1. C aur C++ program compile karo.
+2. Python venv create karo.
+3. Node, Go, Ruby, Perl version/test run karo.
+4. ZIP, 7z, xz aur zstd archive practice karo.
+5. `xxd`, `readelf`, `objdump` se apna binary inspect karo.
+6. GPG SHA-256 calculate karo.
+7. ShellCheck se apna script lint karo.
+8. YAML aur JSON validate karo.
+9. `rsync --dry-run` se backup test karo.
+10. Networking convenience pack commands run karo.
+11. Forensics pack se apni sample file inspect karo.
+12. Reverse engineering tools ke version/help verify karo.
+
+---
+
+# 🏁 Guide Status
+
+Ab repository me:
+
+```text
+Kali metapackage/category index
+Networking practicals
+Web testing practicals
+Forensics
+Reverse engineering
+Wireless/hardware notes
+VPN/proxy basics
+System administration
+Monitoring
+Hardening
+Developer tools
+Archive/compression
+Crypto/signing
+File transfer
+Parsing/linting
+Troubleshooting
+Backup/restore
+Android/NetHunter Rootless limitations
+```
+
+Kali me hundreds of packages hote hain aur package list time ke saath change hoti rehti hai. Isliye exact exhaustive list ke liye:
+
+```bash
+apt search '^kali-tools-'
+apt search '^kali-linux-'
+apt list 2>/dev/null | less
+```
+
+Aur maximum official collection ke liye:
+
+```bash
+sudo apt install kali-linux-everything -y
+```
+
+> Android/NetHunter Rootless par `kali-linux-everything` practical choice hamesha nahi hota. Storage, RAM, GUI, kernel aur hardware support pehle check karo.
