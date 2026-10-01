@@ -454,22 +454,331 @@ chmod +x termux-sathi.sh
 
 ---
 
+# Part 8 — Python Basics in Kali/Termux
+
+Python check:
+
+```bash
+python3 --version
+```
+
+Agar Python installed nahi hai:
+
+```bash
+sudo apt update
+sudo apt install python3 -y
+```
+
+Python shell start:
+
+```bash
+python3
+```
+
+Exit:
+
+```python
+exit()
+```
+
+## 1. First Python Program
+
+```bash
+nano hello.py
+```
+
+Paste:
+
+```python
+print("Hello from Termux-Sathi")
+```
+
+Run:
+
+```bash
+python3 hello.py
+```
+
+Expected:
+
+```text
+Hello from Termux-Sathi
+```
+
+## 2. Variables
+
+```python
+name = "Arun"
+tool = "Termux"
+system = "Kali"
+
+print(name)
+print(tool)
+print(system)
+```
+
+## 3. User Input
+
+```python
+name = input("Apna naam likho: ")
+print("Hello", name)
+```
+
+## 4. Numbers
+
+```python
+a = 10
+b = 5
+
+print(a + b)
+print(a - b)
+print(a * b)
+print(a / b)
+```
+
+## 5. if / else
+
+```python
+number = int(input("Number likho: "))
+
+if number > 10:
+    print("Number 10 se bada hai")
+else:
+    print("Number 10 ya usse chhota hai")
+```
+
+## 6. for Loop
+
+```python
+for number in range(1, 6):
+    print(number)
+```
+
+## 7. while Loop
+
+```python
+count = 1
+
+while count <= 5:
+    print("Count:", count)
+    count += 1
+```
+
+## 8. Lists
+
+```python
+tools = ["Termux", "Kali", "Python"]
+
+for tool in tools:
+    print(tool)
+```
+
+## 9. Functions
+
+```python
+def greet(name):
+    print("Hello", name)
+
+greet("Arun")
+```
+
+## 10. Dictionary
+
+```python
+device = {
+    "name": "Android",
+    "terminal": "Termux",
+    "linux": "Kali"
+}
+
+print(device["terminal"])
+```
+
+## 11. File Write
+
+```python
+with open("notes.txt", "w") as file:
+    file.write("Termux-Sathi Python practical\n")
+```
+
+## 12. File Read
+
+```python
+with open("notes.txt", "r") as file:
+    content = file.read()
+
+print(content)
+```
+
+## 13. Append to File
+
+```python
+with open("notes.txt", "a") as file:
+    file.write("Second line\n")
+```
+
+## 14. Modules
+
+```python
+import os
+import platform
+
+print(os.getcwd())
+print(platform.system())
+print(platform.machine())
+print(platform.python_version())
+```
+
+## 15. Error Handling
+
+```python
+try:
+    number = int(input("Number likho: "))
+    print("Aapne likha:", number)
+except ValueError:
+    print("Valid number likho")
+```
+
+## 16. Command-Line Arguments
+
+```python
+import sys
+
+print("Script:", sys.argv[0])
+print("Arguments:", sys.argv[1:])
+```
+
+Run:
+
+```bash
+python3 args.py hello kali
+```
+
+## 17. Mini Project — Termux-Sathi Python System Tool
+
+Create:
+
+```bash
+nano termux_sathi.py
+```
+
+Paste:
+
+```python
+import os
+import platform
+import subprocess
+
+def run_command(command):
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            text=True,
+            capture_output=True
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
+    except Exception as error:
+        print("Error:", error)
+
+while True:
+    print("\n==============================")
+    print("      TERMUX-SATHI PYTHON")
+    print("==============================")
+    print("1. Current User")
+    print("2. Current Directory")
+    print("3. System Information")
+    print("4. Storage Information")
+    print("5. Memory Information")
+    print("6. Network Information")
+    print("7. Ping Test")
+    print("8. Python Version")
+    print("9. Exit")
+
+    option = input("Option choose karo: ")
+
+    if option == "1":
+        run_command("whoami")
+    elif option == "2":
+        print(os.getcwd())
+    elif option == "3":
+        print("System:", platform.system())
+        print("Machine:", platform.machine())
+    elif option == "4":
+        run_command("df -h")
+    elif option == "5":
+        run_command("free -h")
+    elif option == "6":
+        run_command("ip addr")
+    elif option == "7":
+        run_command("ping -c 4 1.1.1.1")
+    elif option == "8":
+        print(platform.python_version())
+    elif option == "9":
+        print("Termux-Sathi Python Tool closed")
+        break
+    else:
+        print("Invalid option")
+```
+
+Run:
+
+```bash
+python3 termux_sathi.py
+```
+
+## 18. Python Practical Challenge
+
+Khud ek script banao jo:
+
+1. User ka naam le
+2. Current directory dikhaye
+3. Python version dikhaye
+4. Ek list print kare
+5. Ek file create kare
+6. File ka content read kare
+7. Invalid input handle kare
+
+---
+
+## ✅ Part 8 Complete
+
+Ab aapko basic Python concepts ka practical idea hai:
+
+```text
+print()
+variables
+input()
+if / else
+for
+while
+lists
+functions
+dictionary
+files
+modules
+try / except
+sys.argv
+```
+
 ## 🚀 Next
 
-**Part 8 — Python Basics in Kali/Termux**
+**Part 9 — Git & GitHub Basics in Termux/Kali**
 
 Topics:
-- python3
-- print()
-- variables
-- input()
-- if/else
-- loops
-- functions
-- lists
-- files
-- modules
-- Termux-Sathi Python System Tool
+- git install
+- git config
+- clone
+- status
+- add
+- commit
+- branch
+- pull
+- push
+- GitHub authentication basics
 
 ---
 
