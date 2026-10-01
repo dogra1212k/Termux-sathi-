@@ -2873,3 +2873,698 @@ Python venv/pipx
 Kali package maintenance
 backup/restore workflow
 ```
+
+
+---
+
+# 🧪 Practical Chapters — Batch 4
+
+Is batch me system administration, diagnostics, logs, automation aur maintenance tools cover honge.
+
+## Tool 59 — rsync
+
+**Kaam:** files/folders efficiently copy aur synchronize karna.
+
+Install:
+
+```bash
+sudo apt install rsync -y
+```
+
+Version:
+
+```bash
+rsync --version
+```
+
+Safe local practice:
+
+```bash
+mkdir -p ~/rsync-source ~/rsync-backup
+echo "Termux-Sathi backup test" > ~/rsync-source/file.txt
+rsync -av ~/rsync-source/ ~/rsync-backup/
+```
+
+Verify:
+
+```bash
+ls -lah ~/rsync-backup
+cat ~/rsync-backup/file.txt
+```
+
+Dry run:
+
+```bash
+rsync -av --dry-run ~/rsync-source/ ~/rsync-backup/
+```
+
+---
+
+## Tool 60 — rsyslog
+
+Install:
+
+```bash
+sudo apt install rsyslog -y
+```
+
+Version:
+
+```bash
+rsyslogd -v
+```
+
+Common log directory:
+
+```bash
+ls -lah /var/log
+```
+
+Search errors:
+
+```bash
+grep -Ri "error" /var/log 2>/dev/null | head
+```
+
+Rootless environments me service/log access limited ho sakta hai.
+
+---
+
+## Tool 61 — journalctl
+
+Systemd-based environments me:
+
+```bash
+journalctl --version
+```
+
+Recent logs:
+
+```bash
+journalctl -n 50
+```
+
+Current boot:
+
+```bash
+journalctl -b
+```
+
+Errors:
+
+```bash
+journalctl -p err
+```
+
+> NetHunter Rootless/proot me systemd journal available na ho sakta hai.
+
+---
+
+## Tool 62 — lsof
+
+**Kaam:** kaunsi process kaunsi file/socket use kar rahi hai.
+
+Install:
+
+```bash
+sudo apt install lsof -y
+```
+
+Version/help:
+
+```bash
+lsof -v
+```
+
+Current user files:
+
+```bash
+lsof -u "$USER" | head
+```
+
+Port 8000:
+
+```bash
+lsof -i :8000
+```
+
+---
+
+## Tool 63 — strace
+
+**Kaam:** program ke system calls trace karna.
+
+Install:
+
+```bash
+sudo apt install strace -y
+```
+
+Version:
+
+```bash
+strace -V
+```
+
+Simple command trace:
+
+```bash
+strace ls
+```
+
+Output file:
+
+```bash
+strace -o trace.txt ls
+head trace.txt
+```
+
+Summary:
+
+```bash
+strace -c ls
+```
+
+---
+
+## Tool 64 — ltrace
+
+**Kaam:** dynamic library calls trace karna.
+
+Install:
+
+```bash
+sudo apt install ltrace -y
+```
+
+Version:
+
+```bash
+ltrace --version
+```
+
+Test:
+
+```bash
+ltrace /bin/echo "Termux-Sathi"
+```
+
+---
+
+## Tool 65 — htop
+
+Install:
+
+```bash
+sudo apt install htop -y
+```
+
+Run:
+
+```bash
+htop
+```
+
+Useful for CPU, RAM aur processes monitor karna.
+
+Exit:
+
+```text
+F10
+```
+
+---
+
+## Tool 66 — iotop
+
+Install:
+
+```bash
+sudo apt install iotop -y
+```
+
+Run:
+
+```bash
+sudo iotop
+```
+
+> Kernel permissions/features ki wajah se Rootless Android me iotop limited ho sakta hai.
+
+---
+
+## Tool 67 — ncdu
+
+**Kaam:** disk usage ko interactive way me inspect karna.
+
+Install:
+
+```bash
+sudo apt install ncdu -y
+```
+
+Run:
+
+```bash
+ncdu ~
+```
+
+Large files/folders identify karne me useful.
+
+---
+
+## Tool 68 — jq
+
+**Kaam:** JSON data parse/filter karna.
+
+Install:
+
+```bash
+sudo apt install jq -y
+```
+
+Version:
+
+```bash
+jq --version
+```
+
+Sample JSON:
+
+```bash
+echo '{"name":"Termux-Sathi","tool":"jq","active":true}' > sample.json
+```
+
+Pretty print:
+
+```bash
+jq . sample.json
+```
+
+Single field:
+
+```bash
+jq -r '.name' sample.json
+```
+
+---
+
+## Tool 69 — ripgrep
+
+Install:
+
+```bash
+sudo apt install ripgrep -y
+```
+
+Version:
+
+```bash
+rg --version
+```
+
+Search:
+
+```bash
+rg "Termux-Sathi" ~
+```
+
+File type filter:
+
+```bash
+rg "import" --type py .
+```
+
+---
+
+## Tool 70 — GNU screen
+
+Install:
+
+```bash
+sudo apt install screen -y
+```
+
+Start:
+
+```bash
+screen
+```
+
+Named session:
+
+```bash
+screen -S kali-lab
+```
+
+Detach:
+
+```text
+Ctrl+a, then d
+```
+
+List:
+
+```bash
+screen -ls
+```
+
+Reattach:
+
+```bash
+screen -r kali-lab
+```
+
+---
+
+## Tool 71 — cron
+
+Install:
+
+```bash
+sudo apt install cron -y
+```
+
+User crontab:
+
+```bash
+crontab -e
+```
+
+List:
+
+```bash
+crontab -l
+```
+
+Example: har din 08:00 par harmless log entry:
+
+```cron
+0 8 * * * echo "Termux-Sathi cron test" >> $HOME/cron-test.log
+```
+
+> Rootless environment me cron daemon automatic start na ho sakta hai.
+
+---
+
+## Tool 72 — service command
+
+Available services:
+
+```bash
+service --status-all 2>/dev/null
+```
+
+Specific service:
+
+```bash
+sudo service ssh status
+sudo service ssh start
+sudo service ssh stop
+```
+
+Systemd unavailable hone par traditional service scripts kaam kar sakte hain.
+
+---
+
+## Tool 73 — systemctl concept
+
+Check:
+
+```bash
+systemctl --version
+```
+
+Service status:
+
+```bash
+systemctl status ssh
+```
+
+Enable:
+
+```bash
+sudo systemctl enable ssh
+```
+
+> NetHunter Rootless/proot me systemd PID 1 na hone ki wajah se `systemctl` fail kar sakta hai.
+
+---
+
+## Tool 74 — Python venv
+
+Install support:
+
+```bash
+sudo apt install python3-venv -y
+```
+
+Create environment:
+
+```bash
+python3 -m venv ~/venvs/kali-lab
+```
+
+Activate:
+
+```bash
+source ~/venvs/kali-lab/bin/activate
+```
+
+Check:
+
+```bash
+which python
+python --version
+```
+
+Deactivate:
+
+```bash
+deactivate
+```
+
+---
+
+## Tool 75 — pipx
+
+Install:
+
+```bash
+sudo apt install pipx -y
+```
+
+Setup path:
+
+```bash
+pipx ensurepath
+```
+
+Version:
+
+```bash
+pipx --version
+```
+
+List apps:
+
+```bash
+pipx list
+```
+
+pipx Python CLI apps ko isolated environments me install karta hai.
+
+---
+
+# 📦 Kali Package Maintenance
+
+Update package lists:
+
+```bash
+sudo apt update
+```
+
+Upgrade:
+
+```bash
+sudo apt full-upgrade -y
+```
+
+Broken dependencies:
+
+```bash
+sudo apt --fix-broken install
+```
+
+Finish interrupted package config:
+
+```bash
+sudo dpkg --configure -a
+```
+
+Unused packages:
+
+```bash
+sudo apt autoremove -y
+```
+
+Cache clean:
+
+```bash
+sudo apt clean
+```
+
+Package source/status:
+
+```bash
+apt policy PACKAGE
+```
+
+---
+
+# 💾 Backup & Restore Workflow
+
+## 1. Backup folder
+
+```bash
+mkdir -p ~/important-data
+echo "Termux-Sathi" > ~/important-data/readme.txt
+```
+
+Tar archive:
+
+```bash
+tar -czvf important-data.tar.gz ~/important-data
+```
+
+Hash:
+
+```bash
+sha256sum important-data.tar.gz > important-data.tar.gz.sha256
+```
+
+Verify:
+
+```bash
+sha256sum -c important-data.tar.gz.sha256
+```
+
+## 2. Restore
+
+```bash
+mkdir -p ~/restore-test
+tar -xzvf important-data.tar.gz -C ~/restore-test
+```
+
+Check:
+
+```bash
+find ~/restore-test -maxdepth 3 -type f
+```
+
+## 3. rsync backup
+
+```bash
+mkdir -p ~/backup-copy
+rsync -av --dry-run ~/important-data/ ~/backup-copy/
+rsync -av ~/important-data/ ~/backup-copy/
+```
+
+---
+
+# 🔍 Mini System Diagnostic Script
+
+Create:
+
+```bash
+nano ~/system-check.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+
+echo "=== USER ==="
+whoami
+id
+
+echo
+echo "=== SYSTEM ==="
+uname -a
+
+echo
+echo "=== STORAGE ==="
+df -h
+
+echo
+echo "=== MEMORY ==="
+free -h
+
+echo
+echo "=== TOP CPU ==="
+ps aux --sort=-%cpu | head
+
+echo
+echo "=== TOP MEMORY ==="
+ps aux --sort=-%mem | head
+
+echo
+echo "=== NETWORK ==="
+ip addr
+ip route
+
+echo
+echo "=== LISTENING PORTS ==="
+ss -tuln
+```
+
+Run:
+
+```bash
+chmod +x ~/system-check.sh
+~/system-check.sh
+```
+
+---
+
+# ✅ Batch 4 Practice Challenge
+
+1. rsync ka dry run aur real copy karo.
+2. `lsof -i :8000` se local server process dekho.
+3. `strace -c ls` run karo.
+4. htop aur ncdu explore karo.
+5. jq se JSON field extract karo.
+6. ripgrep se text search karo.
+7. screen session create/detach/reattach karo.
+8. Python venv banao aur activate karo.
+9. tar + SHA-256 backup workflow complete karo.
+10. Mini system diagnostic script run karo.
+
+---
+
+# 🚀 Next Practical Batch
+
+Next batch me monitoring aur defensive analysis tools:
+
+```text
+watch
+vmstat
+iostat
+sar
+sysstat
+dstat
+iftop
+nethogs
+bmon
+traceroute
+mtr
+whois
+host
+openssl s_client
+logrotate
+fail2ban concepts
+AppArmor concepts
+UFW/nftables concepts
+system hardening checklist
+```
