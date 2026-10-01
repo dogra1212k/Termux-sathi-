@@ -33,3 +33,5 @@ app/build/outputs/apk/debug/app-debug.apk
 Fresh build verification trigger.
 
 Self-contained learning terminal build verification.
+
+Learning terminal v2.1 build verification trigger.
