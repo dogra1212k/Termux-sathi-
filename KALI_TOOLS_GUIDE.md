@@ -3568,3 +3568,649 @@ AppArmor concepts
 UFW/nftables concepts
 system hardening checklist
 ```
+
+
+---
+
+# 🧪 Practical Chapters — Batch 5
+
+Is batch me monitoring, network diagnostics aur defensive hardening cover honge.
+
+## Tool 76 — watch
+
+**Kaam:** kisi command ko repeat interval par run karna.
+
+Version:
+
+```bash
+watch --version
+```
+
+Disk monitor:
+
+```bash
+watch -n 2 df -h
+```
+
+Memory monitor:
+
+```bash
+watch -n 2 free -h
+```
+
+Stop:
+
+```text
+Ctrl + C
+```
+
+---
+
+## Tool 77 — vmstat
+
+Install:
+
+```bash
+sudo apt install procps -y
+```
+
+Run:
+
+```bash
+vmstat
+```
+
+Repeat every 2 seconds:
+
+```bash
+vmstat 2
+```
+
+Useful fields:
+
+```text
+r  = runnable processes
+free = free memory
+si/so = swap in/out
+us = user CPU
+sy = system CPU
+id = idle CPU
+```
+
+---
+
+## Tool 78 — iostat
+
+Install:
+
+```bash
+sudo apt install sysstat -y
+```
+
+Run:
+
+```bash
+iostat
+```
+
+Extended stats:
+
+```bash
+iostat -xz 2
+```
+
+Rootless Android me block-device statistics limited ho sakti hain.
+
+---
+
+## Tool 79 — sar
+
+Install:
+
+```bash
+sudo apt install sysstat -y
+```
+
+CPU:
+
+```bash
+sar -u 1 5
+```
+
+Memory:
+
+```bash
+sar -r 1 5
+```
+
+Network:
+
+```bash
+sar -n DEV 1 5
+```
+
+Historical sar collection ke liye sysstat service/config required ho sakta hai.
+
+---
+
+## Tool 80 — dstat
+
+Install:
+
+```bash
+sudo apt install dstat -y
+```
+
+Run:
+
+```bash
+dstat
+```
+
+CPU + disk + network:
+
+```bash
+dstat -cdn
+```
+
+---
+
+## Tool 81 — iftop
+
+Install:
+
+```bash
+sudo apt install iftop -y
+```
+
+Run:
+
+```bash
+sudo iftop
+```
+
+Specific interface:
+
+```bash
+sudo iftop -i wlan0
+```
+
+> Interface name device ke hisaab se alag ho sakta hai. Pehle `ip addr` se verify karo.
+
+---
+
+## Tool 82 — nethogs
+
+Install:
+
+```bash
+sudo apt install nethogs -y
+```
+
+Run:
+
+```bash
+sudo nethogs
+```
+
+Specific interface:
+
+```bash
+sudo nethogs wlan0
+```
+
+Rootless environment me per-process network accounting limited ho sakta hai.
+
+---
+
+## Tool 83 — bmon
+
+Install:
+
+```bash
+sudo apt install bmon -y
+```
+
+Run:
+
+```bash
+bmon
+```
+
+Real-time bandwidth/interface monitoring ke liye useful.
+
+---
+
+## Tool 84 — traceroute
+
+Install:
+
+```bash
+sudo apt install traceroute -y
+```
+
+Run:
+
+```bash
+traceroute example.com
+```
+
+ICMP variant:
+
+```bash
+traceroute -I example.com
+```
+
+Some networks traceroute hops hide/block kar sakte hain.
+
+---
+
+## Tool 85 — mtr
+
+Install:
+
+```bash
+sudo apt install mtr-tiny -y
+```
+
+Interactive:
+
+```bash
+mtr example.com
+```
+
+Report mode:
+
+```bash
+mtr -rw example.com
+```
+
+Network path + packet loss troubleshooting ke liye useful.
+
+---
+
+## Tool 86 — whois
+
+Install:
+
+```bash
+sudo apt install whois -y
+```
+
+Domain info:
+
+```bash
+whois example.com
+```
+
+IP info:
+
+```bash
+whois 1.1.1.1
+```
+
+WHOIS data incomplete/redacted ho sakta hai.
+
+---
+
+## Tool 87 — host
+
+Install:
+
+```bash
+sudo apt install bind9-host -y
+```
+
+Lookup:
+
+```bash
+host example.com
+```
+
+MX:
+
+```bash
+host -t MX example.com
+```
+
+---
+
+## Tool 88 — OpenSSL s_client
+
+TLS inspect:
+
+```bash
+openssl s_client -connect example.com:443 -servername example.com
+```
+
+Certificate subject/issuer:
+
+```bash
+openssl s_client -connect example.com:443 -servername example.com </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates
+```
+
+Use public certificate inspection ya apne service troubleshooting ke liye.
+
+---
+
+## Tool 89 — logrotate
+
+Install:
+
+```bash
+sudo apt install logrotate -y
+```
+
+Version:
+
+```bash
+logrotate --version
+```
+
+Config check:
+
+```bash
+cat /etc/logrotate.conf
+```
+
+Dry run/debug:
+
+```bash
+sudo logrotate -d /etc/logrotate.conf
+```
+
+> `-d` debug mode actual rotation nahi karta.
+
+---
+
+## Tool 90 — Fail2ban Concepts
+
+Install:
+
+```bash
+sudo apt install fail2ban -y
+```
+
+Version:
+
+```bash
+fail2ban-client --version
+```
+
+Status where service works:
+
+```bash
+sudo fail2ban-client status
+```
+
+Fail2ban repeated abusive login attempts ko logs ke basis par temporarily block kar sakta hai.
+
+> Rootless/proot environments me firewall integration/service management unavailable ho sakti hai.
+
+---
+
+## Tool 91 — AppArmor Concepts
+
+Check:
+
+```bash
+aa-status
+```
+
+Install utilities:
+
+```bash
+sudo apt install apparmor-utils -y
+```
+
+Profiles list:
+
+```bash
+sudo aa-status
+```
+
+AppArmor support kernel feature par depend karta hai; Rootless Android me usually limited/not available ho sakta hai.
+
+---
+
+## Tool 92 — UFW
+
+Install:
+
+```bash
+sudo apt install ufw -y
+```
+
+Status:
+
+```bash
+sudo ufw status verbose
+```
+
+Before enabling firewall, apne required services/SSH access ko samjho.
+
+Example on a normal authorized Linux server:
+
+```bash
+sudo ufw allow 22/tcp
+sudo ufw enable
+sudo ufw status
+```
+
+> Remote server par firewall enable karne se pehle current SSH access ka rule confirm karo, warna khud ko hi bahar lock kar sakte ho.
+
+---
+
+## Tool 93 — nftables
+
+Install:
+
+```bash
+sudo apt install nftables -y
+```
+
+Current ruleset:
+
+```bash
+sudo nft list ruleset
+```
+
+Tables:
+
+```bash
+sudo nft list tables
+```
+
+Rootless/proot me kernel firewall manipulation usually unavailable hota hai.
+
+---
+
+# 🛡️ System Hardening Checklist
+
+## 1. Updates
+
+```bash
+sudo apt update
+sudo apt full-upgrade -y
+```
+
+## 2. Unused packages
+
+```bash
+sudo apt autoremove -y
+sudo apt clean
+```
+
+## 3. Listening ports review
+
+```bash
+ss -tulnp
+```
+
+Har listening service ko identify karo.
+
+## 4. Running processes
+
+```bash
+ps aux
+htop
+```
+
+## 5. User/account review
+
+```bash
+id
+who
+last
+```
+
+Some proot environments me `last`/login records incomplete ho sakte hain.
+
+## 6. File permissions
+
+```bash
+ls -la ~
+find ~ -maxdepth 2 -type f -perm /022 2>/dev/null | head
+```
+
+Unexpected world/group-writable sensitive files review karo.
+
+## 7. SSH keys
+
+```bash
+ls -la ~/.ssh
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_ed25519 2>/dev/null
+```
+
+## 8. Package integrity/status
+
+```bash
+dpkg -C
+sudo dpkg --configure -a
+```
+
+## 9. Logs
+
+```bash
+ls -lah /var/log
+grep -Ri "failed" /var/log 2>/dev/null | head
+```
+
+## 10. Backups
+
+```bash
+tar -czf backup.tar.gz ~/important-data
+sha256sum backup.tar.gz
+```
+
+Backup ko same device ke ek hi storage location par rakhna real backup nahi hota. Humans ne “single point of failure” ko kaafi baar rediscover kiya hai. 😄
+
+---
+
+# 🔍 Mini Monitoring Script
+
+Create:
+
+```bash
+nano ~/monitor-check.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+
+echo "=== DATE ==="
+date
+
+echo
+echo "=== UPTIME ==="
+uptime
+
+echo
+echo "=== MEMORY ==="
+free -h
+
+echo
+echo "=== DISK ==="
+df -h
+
+echo
+echo "=== TOP CPU ==="
+ps aux --sort=-%cpu | head
+
+echo
+echo "=== TOP MEMORY ==="
+ps aux --sort=-%mem | head
+
+echo
+echo "=== NETWORK ROUTE ==="
+ip route
+
+echo
+echo "=== LISTENING PORTS ==="
+ss -tuln
+```
+
+Run:
+
+```bash
+chmod +x ~/monitor-check.sh
+~/monitor-check.sh
+```
+
+Watch every 5 seconds:
+
+```bash
+watch -n 5 ~/monitor-check.sh
+```
+
+---
+
+# ✅ Batch 5 Practice Challenge
+
+1. `watch` se memory monitor karo.
+2. `vmstat 2` run karo.
+3. `iostat -xz 2` try karo.
+4. `sar -u 1 5` se CPU sample lo.
+5. `bmon` se interface bandwidth dekho.
+6. `traceroute` aur `mtr -rw` compare karo.
+7. `host` aur `whois` use karo.
+8. OpenSSL se TLS certificate dates inspect karo.
+9. `logrotate -d` dry run karo.
+10. Listening ports aur package status ke saath hardening checklist complete karo.
+
+---
+
+# 🚀 Next Practical Batch
+
+Next batch me developer/security utility tools aur file/data workflows:
+
+```text
+make
+gcc/g++
+cmake
+pkg-config
+python3-pip
+pipx workflows
+node/npm basics
+go basics
+ruby basics
+perl basics
+zip/unzip/7z
+xz
+zstd
+hexdump/xxd
+objdump/readelf/nm
+strings advanced
+gpg
+age
+rsync over SSH
+scp/sftp
+aria2
+parallel
+shellcheck
+yamllint
+jsonlint
+```
