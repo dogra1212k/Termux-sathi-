@@ -8,6 +8,9 @@ on:
       - ".github/workflows/android-apk.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -27,6 +30,7 @@ jobs:
 
       - name: Install Android SDK packages
         run: |
+          yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle
@@ -38,9 +42,21 @@ jobs:
         working-directory: android-app
         run: gradle :app:assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Prepare APK
+        run: |
+          cp android-app/app/build/outputs/apk/debug/app-debug.apk Termux-Sathi-debug.apk
+          ls -lh Termux-Sathi-debug.apk
+
+      - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: Termux-Sathi-debug-apk
-          path: android-app/app/build/outputs/apk/debug/app-debug.apk
+          path: Termux-Sathi-debug.apk
           if-no-files-found: error
+
+      - name: Publish latest debug APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete termux-sathi-debug --cleanup-tag -y || true
+          gh release create termux-sathi-debug Termux-Sathi-debug.apk             --target "$GITHUB_SHA"             --title "Termux-Sathi Debug APK"             --notes "Automatically built debug APK from the latest Android app source."
