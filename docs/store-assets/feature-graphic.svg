@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+<rect width="1024" height="500" fill="#0A0E14"/>
+<path d="M645 0V500M765 0V500M885 0V500M0 125H1024M0 250H1024M0 375H1024" stroke="#162D29" stroke-width="1"/>
+<circle cx="879" cy="125" r="190" fill="#10221E"/>
+<circle cx="984" cy="500" r="260" fill="#0D191C"/>
+<g font-family="DejaVu Sans,sans-serif">
+<rect x="58" y="55" width="300" height="32" rx="16" fill="#1B382B"/>
+<text x="78" y="77" fill="#64EBA1" font-size="14" font-weight="bold" letter-spacing="2">LEARN. TRY. UNDERSTAND.</text>
+<text x="56" y="172" fill="#F0F8F4" font-size="57" font-weight="bold">Termux-Sathi</text>
+<text x="59" y="233" fill="#B3C6BC" font-size="26">Linux learning, step by step.</text>
+<text x="59" y="276" fill="#B3C6BC" font-size="22">Hindi + Hinglish. Completely offline.</text>
+<rect x="59" y="329" width="178" height="48" rx="10" fill="#32D778"/>
+<text x="84" y="360" fill="#08120D" font-size="19" font-weight="bold">54 lessons</text>
+<text x="266" y="360" fill="#D2E8DB" font-size="19">File practice + quizzes</text>
+<text x="59" y="444" fill="#8FA99B" font-size="15">Independent learning app · Network tools are simulated</text>
+</g>
+<g transform="translate(713 139) scale(2.2)"><path fill="#0A0E14" d="M0,0h108v108h-108z"/><path fill="#32D778" d="M18,22h72a10,10 0,0 1,10 10v44a10,10 0,0 1,-10 10h-72a10,10 0,0 1,-10 -10v-44a10,10 0,0 1,10 -10z"/><path fill="#0A0E14" d="M25,37l16,17 -16,17 7,7 23,-24 -23,-24z"/><path fill="#0A0E14" d="M55,69h27v8h-27z"/></g>
+</svg>
