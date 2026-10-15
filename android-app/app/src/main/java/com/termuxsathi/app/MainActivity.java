@@ -46,6 +46,8 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private int lastLesson = 0;
     private int completedLessons = 0;
+    private java.util.Set<String> visitedLessons = new java.util.HashSet<>();
+    private SandboxPaths sandbox;
     private int quizScore = 0;
     private int quizQuestion = 0;
     private int quizCurrentScore = 0;
@@ -53,32 +55,24 @@ public class MainActivity extends Activity {
     private String currentTopic = "Linux Terminal Basics";
     private String currentTool = "";
 
-    private final String[] lessonTitles = {
-            "Linux Terminal Basics","pwd, ls aur cd","mkdir, touch aur files",
-            "cat aur echo","Permissions ka concept","Processes ka concept",
-            "Packages: apt / pkg","Networking basics","IP address aur routes",
-            "Ping aur connectivity","Nmap fundamentals","HTTP: curl / wget",
-            "DNS: dig / host","Bash scripting","Python basics","Git basics",
-            "File hashes aur integrity","Digital forensics basics",
-            "Kali tools categories","NetHunter Rootless limitations",
-            "Ports, services aur protocols","TCP vs UDP","SSH fundamentals","Web requests aur headers",
-            "Burp Suite basics","Content discovery basics","SQL injection concepts","XSS concepts",
-            "Authentication security","Password auditing","Hydra concepts in lab","Hashcat/John workflow",
-            "Wi-Fi security concepts","Aircrack-ng lab concepts","Packet capture analysis","Wireshark/Tshark",
-            "Metasploit framework concepts","Vulnerability validation in lab","Reverse engineering basics","GDB/JADX basics",
-            "YARA aur malware triage","Forensics evidence workflow","Privilege escalation concepts","Linux misconfiguration audit",
-            "Phishing awareness aur detection","Social engineering defense","Payloads aur shells concepts","Reverse shell detection",
-            "Persistence concepts aur detection","Log analysis / incident response",
-            "CTF methodology","Safe hacking lab setup","Reporting findings","Responsible disclosure"
-    };
+    private final String[] lessonTitles = LessonCatalog.TITLES;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sandbox = new SandboxPaths(getFilesDir());
         currentDir = getFilesDir();
         prefs = getSharedPreferences("termux_sathi_progress", MODE_PRIVATE);
-        lastLesson = prefs.getInt("lastLesson", 0);
-        completedLessons = prefs.getInt("completedLessons", 0);
+        lastLesson = Math.max(0, Math.min(lessonTitles.length, prefs.getInt("lastLesson", 0)));
+        visitedLessons = new java.util.HashSet<>(prefs.getStringSet("visitedLessons", java.util.Collections.emptySet()));
+        visitedLessons.removeIf(value -> {
+            try { int n = Integer.parseInt(value); return n < 1 || n > lessonTitles.length; }
+            catch (NumberFormatException e) { return true; }
+        });
+        // The old counter represented the highest opened lesson, not completed lessons.
+        if (lastLesson > 0) visitedLessons.add(String.valueOf(lastLesson));
+        completedLessons = visitedLessons.size();
+        if (lastLesson > 0) currentTopic = lessonTitles[lastLesson - 1];
         quizScore = prefs.getInt("quizScore", 0);
 
         LinearLayout root = new LinearLayout(this);
@@ -96,6 +90,7 @@ public class MainActivity extends Activity {
         terminalScroll.setBackground(round(PANEL, 14));
 
         terminal = new TextView(this);
+        terminal.setId(R.id.terminal_output);
         terminal.setTextColor(TEXT);
         terminal.setTextSize(13.5f);
         terminal.setTypeface(Typeface.MONOSPACE);
@@ -109,8 +104,37 @@ public class MainActivity extends Activity {
         root.addView(space(10));
         root.addView(buildInputRow());
 
+        root.setOnApplyWindowInsetsListener((view, insets) -> {
+            int left, top, right, bottom;
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets safe = insets.getInsets(
+                        android.view.WindowInsets.Type.systemBars() |
+                        android.view.WindowInsets.Type.displayCutout() |
+                        android.view.WindowInsets.Type.ime());
+                left = safe.left; top = safe.top; right = safe.right; bottom = safe.bottom;
+            } else {
+                left = insets.getSystemWindowInsetLeft(); top = insets.getSystemWindowInsetTop();
+                right = insets.getSystemWindowInsetRight(); bottom = insets.getSystemWindowInsetBottom();
+            }
+            view.setPadding(dp(14)+left, dp(8)+top, dp(14)+right, dp(8)+bottom);
+            return insets;
+        });
         setContentView(root);
-        bootScreen();
+        root.requestApplyInsets();
+        if (savedInstanceState != null) {
+            terminal.setText(savedInstanceState.getCharSequence("transcript", ""));
+            lastCommand = savedInstanceState.getString("lastCommand", "help");
+            currentTopic = savedInstanceState.getString("currentTopic", currentTopic);
+            currentTool = savedInstanceState.getString("currentTool", "");
+            quizQuestion = savedInstanceState.getInt("quizQuestion");
+            quizCurrentScore = savedInstanceState.getInt("quizCurrentScore");
+            File restored = new File(savedInstanceState.getString("directory", getFilesDir().getPath()));
+            if (isInsideSandbox(restored) && restored.isDirectory()) currentDir = restored;
+            ArrayList<String> previous = savedInstanceState.getStringArrayList("history");
+            if (previous != null) history.addAll(previous);
+            input.setText(savedInstanceState.getString("input", ""));
+            terminalScroll.post(() -> terminalScroll.scrollTo(0, savedInstanceState.getInt("scroll")));
+        } else bootScreen();
     }
 
     private View buildHeader() {
@@ -129,15 +153,17 @@ public class MainActivity extends Activity {
         LinearLayout names = new LinearLayout(this);
         names.setOrientation(LinearLayout.VERTICAL);
         names.setPadding(dp(12),0,0,0);
-        names.addView(label("Termux-Sathi Learning Terminal",18,TEXT,Typeface.BOLD));
+        names.addView(label("Termux-Sathi",18,TEXT,Typeface.BOLD));
         names.addView(label("Offline • Self-contained • Safe Practice",11,GREEN,Typeface.BOLD));
         top.addView(names,new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1f));
-        top.addView(label("v3.0",11,CYAN,Typeface.BOLD));
+        top.addView(label(BuildConfig.VERSION_NAME,11,CYAN,Typeface.BOLD));
         box.addView(top);
 
-        TextView hint = label("Commands, lessons aur labs isi app ke andar chalenge.",12,MUTED,Typeface.NORMAL);
+        TextView hint = label("Offline lessons + file practice. Network tools simulated hain.",12,MUTED,Typeface.NORMAL);
         hint.setPadding(0,dp(10),0,0);
         box.addView(hint);
+        TextView privacy = chip("Privacy & app info", v -> showPrivacy());
+        box.addView(privacy);
         return box;
     }
 
@@ -175,6 +201,8 @@ public class MainActivity extends Activity {
 
         input = new EditText(this);
         input.setSingleLine(true);
+        input.setId(R.id.command_input);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         input.setTextColor(TEXT);
         input.setHintTextColor(MUTED);
         input.setHint("command likho...  e.g. lesson 1");
@@ -185,7 +213,7 @@ public class MainActivity extends Activity {
         input.setImeOptions(EditorInfo.IME_ACTION_GO);
         input.setOnEditorActionListener((v,actionId,event)->{
             if(actionId==EditorInfo.IME_ACTION_GO ||
-                    (event!=null && event.getKeyCode()==KeyEvent.KEYCODE_ENTER)){
+                    (event!=null && event.getKeyCode()==KeyEvent.KEYCODE_ENTER && event.getAction()==KeyEvent.ACTION_DOWN)){
                 submitInput(); return true;
             }
             return false;
@@ -196,6 +224,8 @@ public class MainActivity extends Activity {
         run.setGravity(Gravity.CENTER);
         run.setBackground(round(GREEN,12));
         run.setOnClickListener(v->submitInput());
+        run.setFocusable(true);
+        run.setId(R.id.run_command);
         LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(dp(72),dp(48));
         rp.setMargins(dp(8),0,0,0);
         row.addView(run,rp);
@@ -210,8 +240,8 @@ public class MainActivity extends Activity {
 
     private void bootScreen(){
         terminal.setText("");
-        appendGreen("TERMUX-SATHI LEARNING TERMINAL v3.0\n");
-        append("Safe training shell ready. External app ki zarurat nahi.\n\n");
+        appendGreen("TERMUX-SATHI LEARNING TERMINAL\n");
+        append("Offline training shell ready. Yeh full Linux/Termux shell nahi hai.\n\n");
         appendYellow("Start: "); append("help\n");
         appendYellow("Course: "); append("lessons   |   lesson 1   |   next   |   progress\n");
         appendYellow("Practice: "); append("practice linux   |   practice network\n");
@@ -226,7 +256,9 @@ public class MainActivity extends Activity {
     private void runCommand(String raw){
         String cmd=raw.trim();
         if(cmd.isEmpty()) return;
+        if (cmd.length() > 4096) { appendRed("Command too long (max 4096 characters).\n"); return; }
         history.add(cmd);
+        if (history.size() > 100) history.remove(0);
         appendGreen("\n$ "+cmd+"\n");
 
         String[] parts=cmd.split("\\s+");
@@ -263,7 +295,7 @@ public class MainActivity extends Activity {
                 case "rm": remove(parts); break;
                 case "history": showHistory(); break;
                 case "whoami": append("student\n"); break;
-                case "uname": append("Linux termux-sathi 6.x android-sandbox arm64\n"); break;
+                case "uname": append("Training example (simulated): Linux termux-sathi android-sandbox\n"); break;
                 case "date": append(new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy",Locale.getDefault()).format(new Date())+"\n"); break;
                 case "ip": simulatedIp(parts); break;
                 case "ping": simulatedPing(parts); break;
@@ -276,7 +308,8 @@ public class MainActivity extends Activity {
                     appendYellow("Python learning mode\n");
                     append("Try: lesson 15\nBuilt-in lessons aur exercises available hain.\n");
                     break;
-                case "reset": resetSandbox(); break;
+                case "reset": confirmReset(false); break;
+                case "privacy": showPrivacy(); break;
                 default:
                     appendRed("command not found: "+base+"\n");
                     append("help type karo supported commands ke liye.\n");
@@ -292,7 +325,7 @@ public class MainActivity extends Activity {
         appendYellow("SUPPORTED COMMANDS\n");
         append("Learning:\n  lessons\n  lesson N\n  next\n  progress\n  quiz\n  answer A|B|C\n  challenge\n  cheatsheet\n  badges\n  practice linux\n  practice network\n  kali-tools\n  explain\n  subject\n  terminal\n  tool NAME\n\n");
         append("Filesystem:\n  pwd  ls  cd  mkdir  touch  cat  echo  rm\n\n");
-        append("System/training:\n  whoami  uname  date  history  clear  reset\n");
+        append("System/training:\n  whoami  uname  date  history  clear  reset  privacy\n");
         append("  ip addr  ip route  ping HOST  nmap TARGET\n");
         append("  apt install PKG  pkg install PKG  git status\n\n");
         append("Example:\n  mkdir practice\n  cd practice\n  touch notes.txt\n");
@@ -317,48 +350,25 @@ public class MainActivity extends Activity {
             lastLesson = n;
             currentTopic = lessonTitles[n-1];
             currentTool = "";
-            if (n > completedLessons) completedLessons = n;
+            visitedLessons.add(String.valueOf(n));
+            completedLessons = visitedLessons.size();
             prefs.edit()
                     .putInt("lastLesson", lastLesson)
-                    .putInt("completedLessons", completedLessons)
+                    .putStringSet("visitedLessons", new java.util.HashSet<>(visitedLessons))
                     .apply();
-            appendGreen("\n✓ Progress saved. Next: "+(n < lessonTitles.length ? "lesson "+(n+1) : "course complete")+"\n");
+            appendGreen("\n✓ Progress saved. Next: "+(n < lessonTitles.length ? "lesson "+(n+1) : "last lesson reached")+"\n");
         }catch(NumberFormatException e){
             appendRed("Example: lesson 3\n");
         }
     }
 
-    private String lessonBody(int n){
-        switch(n){
-            case 1:return "Terminal text commands se computer ko instructions dene ka interface hai.\nTry: whoami, pwd, date.";
-            case 2:return "pwd=current directory, ls=files, cd=directory change.\nTry: mkdir demo; cd demo; pwd; cd ..";
-            case 3:return "mkdir folder banata hai, touch file banata hai.\nTry: mkdir lab; cd lab; touch notes.txt; ls";
-            case 4:return "cat content dikhata hai. echo text likhta hai. > overwrite, >> append.\nTry: echo Hello > notes.txt; cat notes.txt";
-            case 5:return "Permissions: r=read, w=write, x=execute. Numeric: 4 read, 2 write, 1 execute. 755 common executable mode.";
-            case 6:return "Process running program hota hai. Linux tools: ps, top, kill. Training app arbitrary Android processes control nahi karta.";
-            case 7:return "Kali/Debian: apt update / apt install. Termux: pkg update / pkg install. Yahan install simulated hai.";
-            case 8:return "Networking: IP=device address, port=service endpoint, TCP/UDP=transport, DNS=name mapping.";
-            case 9:return "ip addr interfaces/IP dikhata hai; ip route routing path. Try: ip addr";
-            case 10:return "ping connectivity test hai. Try: ping 127.0.0.1";
-            case 11:return "Nmap host/port discovery tool hai. Practice sirf localhost/lab/authorized target par. Try: nmap 127.0.0.1";
-            case 12:return "curl HTTP requests inspect karta hai; wget downloads karta hai. Is offline app me web access intentionally disabled hai.";
-            case 13:return "DNS tools: dig, host, nslookup. Record types: A, AAAA, MX, TXT, CNAME.";
-            case 14:return "Bash scripts commands ko automate karte hain. Variables, if/else, loops, functions important concepts hain.";
-            case 15:return "Python basics: print, variables, input, if/else, loops, functions, lists, files.";
-            case 16:return "Git: init repo, add stage, commit snapshot, log history. Try: git status";
-            case 17:return "Hash file fingerprint hota hai. SHA-256 integrity verification ke liye useful hai.";
-            case 18:return "Forensics: evidence preserve, hash, metadata, filesystem analysis. Tools: file, strings, ExifTool, YARA.";
-            case 19:return "Kali categories: information gathering, web, passwords, wireless, forensics, reverse engineering, reporting.";
-            case 20:return "NetHunter Rootless me userland tools milte hain, but monitor mode, injection, kernel modules aur some hardware features limited hote hain.";
-            default:return "";
-        }
-    }
+    private String lessonBody(int n){ return LessonCatalog.body(n); }
 
 
     private void showProgress(){
         int percent = (int)Math.round((completedLessons * 100.0) / lessonTitles.length);
         appendYellow("COURSE PROGRESS\n");
-        append("Completed: "+completedLessons+"/"+lessonTitles.length+" lessons\n");
+        append("Lessons opened: "+completedLessons+"/"+lessonTitles.length+" lessons\n");
         append("Progress: "+percent+"%\n");
         append("Last lesson: "+(lastLesson==0 ? "Not started" : lastLesson+" — "+lessonTitles[lastLesson-1])+"\n");
         append("Quiz best score: "+quizScore+"/5\n");
@@ -407,6 +417,7 @@ public class MainActivity extends Activity {
             return;
         }
         String a=parts[1].toUpperCase(Locale.ROOT);
+        if (!a.matches("[ABC]")) { append("Choose A, B or C.\n"); return; }
         String correct = quizQuestion==3 ? "B" : "A";
         if(a.equals(correct)){
             quizCurrentScore++;
@@ -455,10 +466,10 @@ public class MainActivity extends Activity {
 
     private void showBadges(){
         appendYellow("LEARNING BADGES\n");
-        append((completedLessons>=1 ? "✓" : "○")+" First Step — lesson 1 complete\n");
+        append((completedLessons>=1 ? "✓" : "○")+" First Step — opened a lesson\n");
         append((completedLessons>=5 ? "✓" : "○")+" Linux Rookie — 5 lessons\n");
         append((completedLessons>=10 ? "✓" : "○")+" Terminal Learner — 10 lessons\n");
-        append((completedLessons>=20 ? "✓" : "○")+" Course Finisher — 20 lessons\n");
+        append((completedLessons>=lessonTitles.length ? "✓" : "○")+" Course Explorer — all lessons opened\n");
         append((quizScore>=3 ? "✓" : "○")+" Quiz Pass — score 3/5\n");
         append((quizScore==5 ? "✓" : "○")+" Perfect Score — 5/5\n");
     }
@@ -888,6 +899,7 @@ public class MainActivity extends Activity {
     private void makeDir(String[] parts){
         if(parts.length<2){append("Usage: mkdir NAME\n");return;}
         File d=new File(currentDir,parts[1]);
+        if (!isInsideSandbox(d)) { appendRed("Blocked path.\n"); return; }
         append(d.mkdirs()||d.isDirectory()?"Directory created.\n":"Could not create directory.\n");
     }
 
@@ -904,10 +916,11 @@ public class MainActivity extends Activity {
         if(parts.length<2){append("Usage: cat FILE\n");return;}
         File f=new File(currentDir,parts[1]);
         if(!f.isFile()||!isInsideSandbox(f)){appendRed("File not found.\n");return;}
-        BufferedReader br=new BufferedReader(new FileReader(f));
-        String line;
-        while((line=br.readLine())!=null) append(line+"\n");
-        br.close();
+        if (f.length() > 65536) { appendRed("File too large to display (64 KB limit).\n"); return; }
+        try (BufferedReader br=new BufferedReader(new FileReader(f))) {
+            String line;
+            while((line=br.readLine())!=null) append(line+"\n");
+        }
     }
 
     private void echoCommand(String cmd) throws Exception{
@@ -921,9 +934,8 @@ public class MainActivity extends Activity {
         if(file.isEmpty()){appendRed("Filename missing.\n");return;}
         File f=new File(currentDir,file);
         if(!isInsideSandbox(f)){appendRed("Blocked path.\n");return;}
-        FileWriter fw=new FileWriter(f,app);
-        fw.write(text+"\n");
-        fw.close();
+        if (app && f.length() + text.length() * 4L > 65536) { appendRed("Practice file limit: 64 KB.\n"); return; }
+        try (FileWriter fw=new FileWriter(f,app)) { fw.write(text+"\n"); }
         append("Written to "+file+"\n");
     }
 
@@ -940,6 +952,7 @@ public class MainActivity extends Activity {
     }
 
     private void simulatedIp(String[] parts){
+        appendYellow("Training simulation: sample addresses, not your device IP.\n");
         if(parts.length>1 && parts[1].equals("route")){
             append("default via 10.0.2.2 dev wlan0\n10.0.2.0/24 dev wlan0\n");
         }else{
@@ -972,6 +985,7 @@ public class MainActivity extends Activity {
     }
 
     private void simulatedGit(String[] parts){
+        appendYellow("Git training simulation. No repository is modified.\n");
         String sub=parts.length>1?parts[1]:"";
         if(sub.equals("status")) append("On branch learning\nnothing to commit, working tree clean\n");
         else if(sub.equals("init")) append("Initialized empty Git repository (simulation)\n");
@@ -994,13 +1008,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean isInsideSandbox(File f){
-        try{
-            String base=getFilesDir().getCanonicalPath();
-            String p=f.getCanonicalPath();
-            return p.equals(base)||p.startsWith(base+File.separator);
-        }catch(Exception e){return false;}
-    }
+    private boolean isInsideSandbox(File f){ return sandbox.contains(f); }
 
     private String pathOf(File f){
         try{
@@ -1012,14 +1020,20 @@ public class MainActivity extends Activity {
     }
 
     private void appendPrompt(){ appendGreen("\nstudent@termux-sathi:"+pathOf(currentDir)+" $ "); }
-    private void append(String s){ terminal.append(s); }
+    private void append(String s){
+        terminal.append(s);
+        if (terminal.length() > 60000) {
+            terminal.setText(terminal.getText().subSequence(terminal.length() - 50000, terminal.length()));
+        }
+    }
     private void appendGreen(String s){ appendColored(s,GREEN); }
     private void appendYellow(String s){ appendColored(s,YELLOW); }
     private void appendRed(String s){ appendColored(s,RED); }
 
     private void appendColored(String s,int color){
         int start=terminal.length();
-        terminal.append(s);
+        append(s);
+        start = terminal.length() - s.length();
         android.text.Spannable sp=(android.text.Spannable)terminal.getText();
         sp.setSpan(new android.text.style.ForegroundColorSpan(color),start,terminal.length(),android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
@@ -1034,6 +1048,8 @@ public class MainActivity extends Activity {
         t.setPadding(dp(4),dp(10),dp(4),dp(10));
         t.setBackground(round(PANEL2,10));
         t.setOnClickListener(l);
+        t.setMinHeight(dp(48));
+        t.setFocusable(true);
         return t;
     }
 
@@ -1060,6 +1076,57 @@ public class MainActivity extends Activity {
         View v=new View(this);
         v.setLayoutParams(new LinearLayout.LayoutParams(1,dp(h)));
         return v;
+    }
+
+
+    @Override protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putCharSequence("transcript", terminal.getText());
+        out.putString("directory", currentDir.getPath());
+        out.putString("input", input.getText().toString());
+        out.putString("lastCommand", lastCommand);
+        out.putString("currentTopic", currentTopic);
+        out.putString("currentTool", currentTool);
+        out.putInt("quizQuestion", quizQuestion);
+        out.putInt("quizCurrentScore", quizCurrentScore);
+        out.putInt("scroll", terminalScroll.getScrollY());
+        out.putStringArrayList("history", new ArrayList<>(history));
+    }
+
+    private void showPrivacy() {
+        String policy;
+        try (java.io.InputStream stream = getAssets().open("privacy-policy.txt")) {
+            java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            byte[] buffer = new byte[2048]; int count;
+            while ((count = stream.read(buffer)) != -1) bytes.write(buffer, 0, count);
+            policy = bytes.toString("UTF-8");
+        } catch (java.io.IOException error) {
+            policy = "Privacy policy could not be opened. Please reinstall the app.";
+        }
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Privacy & app info")
+                .setMessage(policy)
+                .setPositiveButton("Close", null)
+                .setNeutralButton("Delete local data", (dialog, which) -> confirmReset(true))
+                .show();
+    }
+
+    private void confirmReset(boolean allData) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(allData ? "Delete all local data?" : "Reset practice files?")
+                .setMessage(allData ? "Practice files, progress, quiz scores and command history will be deleted."
+                        : "All practice files will be deleted. Lesson progress will be kept.")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    resetSandbox();
+                    if (allData) {
+                        prefs.edit().clear().apply();
+                        visitedLessons.clear(); completedLessons = 0; lastLesson = 0;
+                        quizScore = 0; quizQuestion = 0; quizCurrentScore = 0;
+                        history.clear(); lastCommand = "help"; currentTopic = lessonTitles[0]; currentTool = "";
+                        input.setText(""); bootScreen();
+                    }
+                }).show();
     }
 
     private int dp(int v){

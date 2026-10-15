@@ -4,14 +4,36 @@ plugins {
 
 android {
     namespace "com.termuxsathi.app"
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.termuxsathi.app"
         minSdk 24
-        targetSdk 35
-        versionCode 1
-        versionName "1.0.0"
+        targetSdk 36
+        versionCode 2
+        versionName "3.1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures { buildConfig true }
+
+    // No secret values or upload keys are checked into the repository.
+    def signingValues = ["TERMUX_UPLOAD_STORE_FILE", "TERMUX_UPLOAD_STORE_PASSWORD",
+                         "TERMUX_UPLOAD_KEY_ALIAS", "TERMUX_UPLOAD_KEY_PASSWORD"]
+            .collectEntries { [(it): System.getenv(it)] }
+    def hasSigning = signingValues.values().every { it != null && !it.isEmpty() }
+    if (signingValues.values().any { it != null && !it.isEmpty() } && !hasSigning) {
+        throw new GradleException("Release signing requires all four TERMUX_UPLOAD_* variables.")
+    }
+    signingConfigs {
+        if (hasSigning) {
+            upload {
+                storeFile file(signingValues.TERMUX_UPLOAD_STORE_FILE)
+                storePassword signingValues.TERMUX_UPLOAD_STORE_PASSWORD
+                keyAlias signingValues.TERMUX_UPLOAD_KEY_ALIAS
+                keyPassword signingValues.TERMUX_UPLOAD_KEY_PASSWORD
+            }
+        }
     }
 
     compileOptions {
@@ -22,6 +44,13 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            if (hasSigning) signingConfig signingConfigs.upload
         }
     }
+}
+
+dependencies {
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test:runner:1.6.2"
+    androidTestImplementation "androidx.test.ext:junit:1.2.1"
 }

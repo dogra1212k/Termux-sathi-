@@ -39,31 +39,18 @@ sudo apt install kali-linux-everything -y
 
 ---
 
-## 📱 Android APK
+## 📱 Android app and Play Console
 
-Termux-Sathi ka native Android companion app `android-app/` folder me hai.
+`android-app/` contains the offline Termux-Sathi learning terminal: 54 lessons, file practice, simulated network/package/Git examples, quiz and local progress.
 
-Features:
+The **Android app checks and bundles** workflow builds a debug APK and an explicitly **unsigned** release AAB. It also runs unit tests, Android lint and an Android 16 device smoke test. The separate **Signed Play release bundle** workflow uses owner-provided GitHub secrets to produce the AAB for Play Console; it never publishes automatically.
 
-```text
-Setup commands copy
-GitHub repo shortcut
-Kali Master Index
-Kali Tools Guide
-Safe Labs
-NetHunter Rootless Guide
-Open Termux button
-```
+- [Android build and signing instructions](android-app/README.md)
+- [Play Console checklist](docs/PLAY_CONSOLE.md)
+- [Store listing draft](docs/STORE_LISTING.md)
+- [Privacy policy HTML](docs/privacy-policy.html)
 
-GitHub Actions debug APK automatically build karta hai aur successful build ke baad **Termux-Sathi Debug APK** release me publish karta hai.
-
-APK file name:
-
-```text
-Termux-Sathi-debug.apk
-```
-
-App Android sandbox ke andar Kali/root commands silently execute nahi karta. Commands Termux me run kiye jaate hain.
+The app uses real private files for file practice. Network tools and package installations are simulations; it is not a full Termux or Kali runtime.
 
 ---
 

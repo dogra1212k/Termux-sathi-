@@ -1,0 +1,25 @@
+Termux-Sathi — Privacy policy & app information
+Effective date: 15 October 2026
+App version: 3.1.0
+
+Termux-Sathi is an independent offline learning app maintained in the dogra1212k/Termux-sathi- project. It is not the official Termux or Kali Linux application and is not affiliated with those projects.
+
+DATA COLLECTION
+This app does not collect or transmit personal data. It has no internet permission, account sign-in, ads, analytics, crash-reporting SDK, tracking or purchases. It does not read contacts, location, microphone, camera or shared storage.
+
+DATA ON YOUR DEVICE
+Practice files, lessons opened and best quiz score are stored in the app's private storage. The current terminal transcript, typed input and recent command history are held in the app session and may be retained by Android when restoring that session. We do not receive this information. Avoid typing secrets into the training terminal. The app disables cloud backup and device-transfer backup of its data.
+
+RETENTION & DELETION
+Practice files and progress remain until you delete them. Use Privacy & app info > Delete local data to erase files, progress, quiz scores and session history. The reset command deletes practice files after confirmation and keeps progress. Android Settings > Apps > Termux-Sathi > Storage > Clear storage, or uninstalling the app, also removes local app data.
+
+HOW THE APP WORKS
+File commands operate on real files in the app's private practice directory. Networking, package-manager, Git and system-identity outputs are teaching simulations. Python and security tools are explained, not executed. This app does not install Linux, scan networks, obtain root access or run arbitrary shell commands.
+
+CONTACT
+For app or privacy questions, open an issue at:
+https://github.com/dogra1212k/Termux-sathi-/issues
+An issue is public: never include passwords or personal data. Visiting GitHub separately is subject to GitHub's privacy policy.
+
+POLICY CHANGES
+If future releases change data handling, this policy and the Play Data safety declaration must be updated before that release.

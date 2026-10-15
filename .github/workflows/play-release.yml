@@ -1,0 +1,62 @@
+name: Signed Play release bundle
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signed-bundle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: play-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Build with the owner's upload key
+        working-directory: android-app
+        shell: bash
+        env:
+          TERMUX_UPLOAD_KEYSTORE_BASE64: ${{ secrets.TERMUX_UPLOAD_KEYSTORE_BASE64 }}
+          TERMUX_UPLOAD_STORE_PASSWORD: ${{ secrets.TERMUX_UPLOAD_STORE_PASSWORD }}
+          TERMUX_UPLOAD_KEY_ALIAS: ${{ secrets.TERMUX_UPLOAD_KEY_ALIAS }}
+          TERMUX_UPLOAD_KEY_PASSWORD: ${{ secrets.TERMUX_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in TERMUX_UPLOAD_KEYSTORE_BASE64 TERMUX_UPLOAD_STORE_PASSWORD TERMUX_UPLOAD_KEY_ALIAS TERMUX_UPLOAD_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required release secret: $name"
+              exit 1
+            fi
+          done
+          export TERMUX_UPLOAD_STORE_FILE="$RUNNER_TEMP/termux-upload.jks"
+          trap 'rm -f "$TERMUX_UPLOAD_STORE_FILE"' EXIT
+          printf '%s' "$TERMUX_UPLOAD_KEYSTORE_BASE64" | base64 --decode > "$TERMUX_UPLOAD_STORE_FILE"
+          chmod 600 "$TERMUX_UPLOAD_STORE_FILE"
+          gradle :app:testDebugUnitTest :app:lintRelease :app:bundleRelease --no-daemon
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab > "$RUNNER_TEMP/signature-check.txt"
+          if ! grep -q 'jar verified' "$RUNNER_TEMP/signature-check.txt"; then
+            echo '::error::Bundle signature verification failed'
+            exit 1
+          fi
+          mkdir -p ../play-dist
+          cp app/build/outputs/bundle/release/app-release.aab ../play-dist/Termux-Sathi-3.1.0-play.aab
+          cd ../play-dist
+          sha256sum *.aab > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Termux-Sathi-3.1.0-signed-play-bundle
+          path: play-dist/
+          if-no-files-found: error

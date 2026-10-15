@@ -1,0 +1,5 @@
+<resources>
+    <item name="command_input" type="id" />
+    <item name="terminal_output" type="id" />
+    <item name="run_command" type="id" />
+</resources>
