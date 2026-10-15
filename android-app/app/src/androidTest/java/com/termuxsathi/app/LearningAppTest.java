@@ -56,12 +56,23 @@ public class LearningAppTest {
     }
     private void saveScreenshot(android.app.Instrumentation instrumentation,
             android.content.Context context, String name) throws Exception {
-        java.io.File directory = new java.io.File(context.getExternalFilesDir(null), "screenshots");
-        if (!directory.isDirectory() && !directory.mkdirs()) throw new java.io.IOException("Screenshot directory");
+        // Shared emulator media survives AGP uninstalling the test app after the run.
+        android.content.ContentValues values = new android.content.ContentValues();
+        values.put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, name);
+        values.put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/png");
+        values.put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/TermuxSathi");
+        values.put(android.provider.MediaStore.Images.Media.IS_PENDING, 1);
+        android.net.Uri uri = context.getContentResolver().insert(
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        assertNotNull(uri);
         android.graphics.Bitmap screenshot = instrumentation.getUiAutomation().takeScreenshot();
         assertNotNull(screenshot);
-        try (java.io.FileOutputStream stream = new java.io.FileOutputStream(new java.io.File(directory, name))) {
+        try (java.io.OutputStream stream = context.getContentResolver().openOutputStream(uri)) {
+            assertNotNull(stream);
             assertTrue(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream));
         } finally { screenshot.recycle(); }
+        values.clear();
+        values.put(android.provider.MediaStore.Images.Media.IS_PENDING, 0);
+        context.getContentResolver().update(uri, values, null, null);
     }
 }
